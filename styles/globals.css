@@ -1,0 +1,99 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+*{
+  line-height: 2rem;
+}
+.customList {
+  list-style: none;
+  display: flex;
+  justify-content: space-around;
+  cursor: pointer;
+  
+}
+.menuLevel1 {
+  background-color: rgb(183, 176, 176);
+}
+
+
+.itemLevel1 {
+  width: 100%;
+  text-align: center;
+}
+.itemLevel1:hover {
+  /* background-color: rgb(64, 31, 31); */
+  background-color: rgb(206, 199, 199);
+  color: rgb(114, 152, 185);
+}
+
+.itemLevel1_active {
+  color: rgb(114, 152, 185);
+  background-color: rgb(206, 199, 199);
+  width: 100%;
+  text-align: center;
+}
+
+.itemLevel2 {
+  width: 100%;
+  text-align: center;
+  border-bottom: 1px;
+}
+.itemLevel2:hover {
+  background-color: rgb(64, 31, 31);
+  color: aliceblue;
+}
+
+.itemLevel2_active {
+  color: rgb(144, 172, 197);
+  background-color: rgb(119, 62, 62);
+  width: 100%;
+  text-align: center;
+}
+.buttonCustom {
+  width: 100%;
+}
+
+
+.buttonLogic {
+  cursor: pointer;
+  background-color: #008CBA; /* blue */
+  border: none;
+  color: white;
+  padding: 5px 32px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 14px;
+  float: right;
+  border-radius: 0.6rem;
+}
+
+.buttonLogicCancel {
+  cursor: pointer;
+  background-color: #d90303; /* red */
+  border: none;
+  color: white;
+  padding: 5px 32px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 14px;
+  float: right;
+  border-radius: 0.6rem;
+}
+.rowSelected {
+  background-color: #5ded35; /* blue */
+}
+
