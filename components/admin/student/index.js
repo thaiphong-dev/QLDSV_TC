@@ -3,7 +3,7 @@ import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 import StudentDetail from "./form";
-import ClassInfo from "./classInfo";
+import StudentInfo from "./studentInfo";
 import StudentList from "./studentList";
 import { toast } from "react-toastify";
 import { adminApi } from "../../services/adminService";
@@ -207,12 +207,12 @@ export default function Student() {
           justifyContent: "space-between",
         }}
       >
-        <div style={{ width: "20%" }}>
-          <ClassInfo />
+        <div style={{ width: "34%" }}>
+          <StudentInfo />
         </div>
         <div
           style={{
-            width: "75%",
+            width: "65%",
             paddingTop: "3rem",
           }}
         >
