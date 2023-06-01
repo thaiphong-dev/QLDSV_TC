@@ -13,11 +13,49 @@ export default function Student() {
 
   const dsKhoa = JSON.parse(localStorage.getItem("dsPhanManh")).slice(0, 2);
   const [dsLop, setDsLop] = useState();
+  const [svSelected, setSvSelected] = useState();
 
+  // login phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPageSize, setCurrentPageSize] = useState(5);
+
+  const handleChangePageSize = (e) => {
+    setCurrentPageSize(e.target.value);
+  };
+
+  const handleClickNext = () => {
+    let page = currentPage + 1;
+
+    setCurrentPage(page);
+  };
+
+  const handleClickPrevious = () => {
+    if (currentPage > 1) {
+      let page = currentPage - 1;
+      setCurrentPage(page);
+    }
+  };
+
+  useEffect(() => {
+    let prevbtn = document.getElementById("classSV_prev-btn");
+    if (currentPage === 1) prevbtn.disabled = true;
+    else prevbtn.disabled = false;
+
+    let nextbtn = document.getElementById("classSV_next-btn");
+    if (dsLop?.length < currentPageSize) nextbtn.disabled = true;
+    else nextbtn.disabled = false;
+  }, [currentPage, dsLop?.length]);
+
+  //
   const layDsLop = async () => {
     const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
+    const payload = {
+      ...dbConfig,
+      pageSize: currentPageSize,
+      pageNumber: currentPage,
+    };
     try {
-      const res = await adminApi.layDsLop(dbConfig);
+      const res = await adminApi.layDsLop(payload);
       if (res.data) {
         setDsLop(res.data);
         layDsSinhVien(res.data?.[0].MALOP);
@@ -42,11 +80,14 @@ export default function Student() {
     const payload = {
       ...dbConfig,
       maLop: maLop,
+      pageSize: currentPageSize,
+      pageNumber: currentPage,
     };
     try {
       const res = await adminApi.layDsSinhVien(payload);
       if (res.data) {
         setDsSinhVien(res.data);
+        setSvSelected(res.data[0]);
       }
     } catch (error) {
       toast.error(error, {
@@ -67,7 +108,7 @@ export default function Student() {
 
   useEffect(() => {
     layDsLop();
-  }, []);
+  }, [currentPage, currentPageSize]);
 
   const [showActionButton, setShowActionButton] = useState({
     model: {},
@@ -201,6 +242,38 @@ export default function Student() {
           ))}
         </table>
       </div>
+      {/* Phân trang  */}
+      <div class="pagination-container">
+        <div class="page-size">
+          <label for="page-size-select">Page Size:</label>
+          <select
+            onChange={(e) => handleChangePageSize(e)}
+            id="page-size-select"
+            defaultValue={currentPageSize}
+          >
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+          </select>
+        </div>
+        <div class="page-number">
+          <button
+            id="classSV_prev-btn"
+            onClick={handleClickPrevious}
+            className="prev-btn buttonLogic"
+          >
+            Quay lại
+          </button>
+          <span id="current-page">{currentPage}</span>
+          <button
+            id="classSV_next-btn"
+            onClick={handleClickNext}
+            className="next-btn buttonLogic"
+          >
+            Tiếp
+          </button>
+        </div>
+      </div>
       <div
         style={{
           display: "flex",
@@ -208,7 +281,7 @@ export default function Student() {
         }}
       >
         <div style={{ width: "34%" }}>
-          <StudentInfo />
+          <StudentInfo detail={svSelected} />
         </div>
         <div
           style={{
@@ -216,7 +289,13 @@ export default function Student() {
             paddingTop: "3rem",
           }}
         >
-          {dsSinhVien && <StudentList dsSinhVien={dsSinhVien} />}
+          {dsSinhVien && (
+            <StudentList
+              svSelected={svSelected}
+              setSvSelected={setSvSelected}
+              dsSinhVien={dsSinhVien}
+            />
+          )}
         </div>
       </div>
 

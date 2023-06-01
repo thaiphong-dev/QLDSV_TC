@@ -3,14 +3,12 @@ import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 import StudentDetail from "./form";
+import moment from "moment/moment";
 
 export default function StudentList(props) {
-  const { dsSinhVien } = props;
+  const { dsSinhVien, svSelected, setSvSelected } = props;
   const rowClass = "rowSelected";
-
-  useEffect(() => {
-    console.log("dsSinhVien", dsSinhVien);
-  }, [dsSinhVien]);
+  const [selectedRow, setSelectRow] = useState(0);
 
   const [showActionButton, setShowActionButton] = useState({
     model: {},
@@ -71,8 +69,11 @@ export default function StudentList(props) {
                       .classList.remove(rowClass);
                 });
                 document.getElementById(`SV_${index}`).classList.add(rowClass);
+                setSvSelected(x);
+                setSelectRow(index);
               }}
               id={`SV_${index}`}
+              className={selectedRow === index ? rowClass : ""}
               key={x.MASV}
             >
               <td
@@ -128,13 +129,15 @@ export default function StudentList(props) {
                     )}
                 </div>
               </td>
-              <td>{x.MASV}</td>
+              <td style={{ textAlign: "center" }}>{x.MASV}</td>
               <td>{x.HOTEN}</td>
-              <td>{x.MALOP}</td>
-              <td>{x.PHAI ? "Nữ" : "Nam"}</td>
-              <td>{Date(x.NGAYSINH)}</td>
+              <td style={{ textAlign: "center" }}>{x.MALOP}</td>
+              <td style={{ textAlign: "center" }}>{x.PHAI ? "Nữ" : "Nam"}</td>
+              <td style={{ textAlign: "center" }}>
+                {moment(x.NGAYSINH).format("DD-MM-YYYY")}
+              </td>
               <td>{x.DIACHI}</td>
-              <td>
+              <td style={{ textAlign: "center" }}>
                 <input
                   checked={x.DANGHIHOC ? "checked" : ""}
                   value={x.DANGHIHOC}
@@ -145,6 +148,7 @@ export default function StudentList(props) {
           ))}
         </table>
       </div>
+
       <StudentDetail
         setRefreshEditForm={setRefreshEditForm}
         refreshEditForm={refreshEditForm}

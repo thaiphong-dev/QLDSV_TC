@@ -13,6 +13,39 @@ export default function ClassTC() {
   const [refres, setRefresh] = useState(true);
   const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
   const rowClass = "rowSelected";
+
+  // login phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPageSize, setCurrentPageSize] = useState(5);
+
+  const handleChangePageSize = (e) => {
+    setCurrentPageSize(e.target.value);
+  };
+
+  const handleClickNext = () => {
+    let page = currentPage + 1;
+
+    setCurrentPage(page);
+  };
+
+  const handleClickPrevious = () => {
+    if (currentPage > 1) {
+      let page = currentPage - 1;
+      setCurrentPage(page);
+    }
+  };
+
+  useEffect(() => {
+    let prevbtn = document.getElementById("classTC_prev-btn");
+    if (currentPage === 1) prevbtn.disabled = true;
+    else prevbtn.disabled = false;
+
+    let nextbtn = document.getElementById("classTC_next-btn");
+    if (dsLop?.length < currentPageSize) nextbtn.disabled = true;
+    else nextbtn.disabled = false;
+  }, [currentPage, dsLop?.length]);
+
+  //
   const taoLopTC = async (payload) => {
     try {
       const res = await adminApi.taoLopTC(payload);
@@ -50,8 +83,13 @@ export default function ClassTC() {
   };
   // lấy lớp tín chỉ
   const layDsLop = async () => {
+    const payload = {
+      ...dbConfig,
+      pageSize: currentPageSize,
+      pageNumber: currentPage,
+    };
     try {
-      const res = await adminApi.layDsLopTC(dbConfig);
+      const res = await adminApi.layDsLopTC(payload);
       if (res.data) {
         setDsLop(res.data);
       }
@@ -139,8 +177,11 @@ export default function ClassTC() {
   };
   useEffect(() => {
     layDsKhoa();
+  }, []);
+
+  useEffect(() => {
     layDsLop();
-  }, [refreshTable]);
+  }, [refreshTable, currentPage, currentPageSize]);
 
   const [showActionButton, setShowActionButton] = useState({
     model: {},
@@ -171,7 +212,6 @@ export default function ClassTC() {
             display: "flex",
             justifyContent: "center",
             marginTop: "3rem",
-            marginBottom: "3rem",
           }}
         >
           <label style={{ paddingTop: "7px", paddingRight: "10px" }}>
@@ -202,6 +242,7 @@ export default function ClassTC() {
         <table
           key={[refres, refreshTable]}
           style={{ width: "100%", borderCollapse: "collapse" }}
+          className="table-container"
         >
           <tr
             style={{
@@ -223,7 +264,6 @@ export default function ClassTC() {
           {dsLop?.map((x, index) => (
             <tr
               onClick={() => {
-                console.log("index", index);
                 dsLop?.forEach((e, i) => {
                   if (i !== index)
                     document
@@ -313,6 +353,38 @@ export default function ClassTC() {
             </tr>
           ))}
         </table>
+      </div>
+      {/* Phân trang  */}
+      <div class="pagination-container">
+        <div class="page-size">
+          <label for="page-size-select">Page Size:</label>
+          <select
+            onChange={(e) => handleChangePageSize(e)}
+            id="page-size-select"
+            defaultValue={currentPageSize}
+          >
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+          </select>
+        </div>
+        <div class="page-number">
+          <button
+            id="classTC_prev-btn"
+            onClick={handleClickPrevious}
+            className="prev-btn buttonLogic"
+          >
+            Quay lại
+          </button>
+          <span id="current-page">{currentPage}</span>
+          <button
+            id="classTC_next-btn"
+            onClick={handleClickNext}
+            className="next-btn buttonLogic"
+          >
+            Tiếp
+          </button>
+        </div>
       </div>
       <ClassTCDetail
         refreshTable={refreshTable}

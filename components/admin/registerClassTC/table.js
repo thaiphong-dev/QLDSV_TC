@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from "react";
-import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
-import SubjectDetail from "./form";
-import { adminApi } from "../../services/adminService";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { adminApi } from "../../services/adminService";
+import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 
-export default function Subject() {
+export default function Table(props) {
+  const { tableKey, detail } = props;
+  const rowClass = "rowSelected";
+
   const dsKhoa = JSON.parse(localStorage.getItem("dsPhanManh")).slice(0, 2);
-  const [dsMonHoc, setDsMMonHoc] = useState();
+  const [dsLop, setDsLop] = useState();
 
   // login phân trang
   const [currentPage, setCurrentPage] = useState(1);
@@ -32,28 +33,23 @@ export default function Subject() {
   };
 
   useEffect(() => {
-    let prevbtn = document.getElementById("subject_prev-btn");
+    let prevbtn = document.getElementById("registerClassTC_prev-btn");
     if (currentPage === 1) prevbtn.disabled = true;
     else prevbtn.disabled = false;
 
-    let nextbtn = document.getElementById("subject_next-btn");
-    if (dsMonHoc?.length < currentPageSize) nextbtn.disabled = true;
+    let nextbtn = document.getElementById("registerClassTC_next-btn");
+    if (dsLop?.length < currentPageSize) nextbtn.disabled = true;
     else nextbtn.disabled = false;
-  }, [currentPage, dsMonHoc?.length]);
+  }, [currentPage, dsLop?.length]);
 
   //
-
-  const layDsMonHoc = async () => {
+  const layDsLop = async () => {
     const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
-    const payload = {
-      ...dbConfig,
-      pageSize: currentPageSize,
-      pageNumber: currentPage,
-    };
     try {
-      const res = await adminApi.layDsMonHoc(payload);
+      const res = await adminApi.layDsLop(dbConfig);
       if (res.data) {
-        setDsMMonHoc(res.data);
+        setDsLop(res.data);
+        layDsSinhVien(res.data?.[0].MALOP);
       }
     } catch (error) {
       toast.error(error, {
@@ -68,9 +64,39 @@ export default function Subject() {
       });
     }
   };
+  const [dsSinhVien, setDsSinhVien] = useState();
+
+  const layDsSinhVien = async (maLop) => {
+    const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
+    const payload = {
+      ...dbConfig,
+      maLop: maLop,
+    };
+    try {
+      const res = await adminApi.layDsSinhVien(payload);
+      if (res.data) {
+        setDsSinhVien(res.data);
+      }
+    } catch (error) {
+      toast.error(error, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  };
+  const [selectedRow, setSelectRow] = useState(0);
+
+  const [keyFirst, setKeyFirst] = useState(true);
+
   useEffect(() => {
-    layDsMonHoc();
-  }, [currentPage, currentPageSize]);
+    layDsLop();
+  }, []);
 
   const [showActionButton, setShowActionButton] = useState({
     model: {},
@@ -94,34 +120,68 @@ export default function Subject() {
   }, [refreshEditForm]);
 
   return (
-    <>
+    <div>
+      <div
+        style={{
+          textAlign: "center",
+          backgroundColor: "rgb(206, 199, 199)",
+        }}
+      >
+        {tableKey === "tuition" ? (
+          <label>Danh sách Lớp tín chỉ</label>
+        ) : (
+          <label>Danh sách Lớp tín chỉ đã đang ký</label>
+        )}
+      </div>
       <div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: "3rem",
-            marginBottom: "3rem",
-          }}
-        >
-          <label style={{ paddingTop: "7px", paddingRight: "10px" }}>
-            Khoa
-          </label>
-          <div style={{ width: "30%" }}>
-            <Select defaultValue={dsKhoa[0]} options={dsKhoa}></Select>
-          </div>
-        </div>
-
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <tr style={{ backgroundColor: "rgb(114, 152, 185)" }}>
-            <td style={{ width: "4rem" }}></td>
-            <td>Mã lớp</td>
-            <td>Tên lớp</td>
-            <td>Số tín chỉ</td>
-          </tr>
+          {tableKey === "tuition" ? (
+            <tr
+              style={{
+                backgroundColor: "rgb(114, 152, 185)",
+              }}
+            >
+              <td style={{ width: "4rem" }}></td>
+              <td>Mã lớp tín chỉ </td>
+              <td>Tên môn học</td>
+              <td>Nhóm</td>
+              <td>Giảng viên</td>
+              <td>Số sinh viên tối thiểu</td>
+              <td>Số sinh viên đã đăng ký</td>
+            </tr>
+          ) : (
+            <tr
+              style={{
+                backgroundColor: "rgb(114, 152, 185)",
+              }}
+            >
+              <td style={{ width: "4rem" }}></td>
+              <td>Mã lớp tín chỉ </td>
+              <td>Niên khóa</td>
+              <td>Học kỳ</td>
+              <td>Tên môn học</td>
+              <td>Nhóm</td>
+              <td>Giảng viên</td>
+            </tr>
+          )}
 
-          {dsMonHoc?.map((x, index) => (
-            <tr key={x.classCode}>
+          {detail?.map((x, index) => (
+            <tr
+              onClick={() => {
+                dsLop?.forEach((e, i) => {
+                  if (i !== index)
+                    document
+                      .getElementById(`lop_${i}`)
+                      .classList.remove(rowClass);
+                });
+                document.getElementById(`lop_${index}`).classList.add(rowClass);
+                setSelectRow(index);
+                layDsSinhVien(x.MALOP);
+              }}
+              id={`lop_${index}`}
+              className={selectedRow === index ? rowClass : ""}
+              key={`lop_${x.MALOP}`}
+            >
               <td
                 style={{
                   width: "4rem",
@@ -176,9 +236,10 @@ export default function Subject() {
                     )}
                 </div>
               </td>
-              <td>{x.MAMH}</td>
-              <td>{x.TENMH}</td>
-              <td>{(x.SOTIET_TH + x.SOTIET_LT) / 15}</td>
+              <td>{x.MALOP}</td>
+              <td>{x.TENLOP}</td>
+              <td>{x.KHOAHOC}</td>
+              <td>{x.KHOA}</td>
             </tr>
           ))}
         </table>
@@ -199,7 +260,7 @@ export default function Subject() {
         </div>
         <div class="page-number">
           <button
-            id="subject_prev-btn"
+            id="registerClassTC_prev-btn"
             onClick={handleClickPrevious}
             className="prev-btn buttonLogic"
           >
@@ -207,7 +268,7 @@ export default function Subject() {
           </button>
           <span id="current-page">{currentPage}</span>
           <button
-            id="subject_next-btn"
+            id="registerClassTC_next-btn"
             onClick={handleClickNext}
             className="next-btn buttonLogic"
           >
@@ -215,11 +276,6 @@ export default function Subject() {
           </button>
         </div>
       </div>
-      <SubjectDetail
-        setRefreshEditForm={setRefreshEditForm}
-        refreshEditForm={refreshEditForm}
-        model={showEditForm}
-      />
-    </>
+    </div>
   );
 }

@@ -68,7 +68,6 @@ export default function SubjectDetail(props) {
             <button
               onClick={(e) => {
                 e.preventDefault();
-                console.log("call");
                 setRefreshEditForm(!refreshEditForm);
               }}
             >

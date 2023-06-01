@@ -1,8 +1,9 @@
+import moment from "moment";
 import React from "react";
 import Select from "react-select";
 
 export default function StudentInfo(props) {
-  const { model, refreshEditForm, setRefreshEditForm } = props;
+  const { model, refreshEditForm, setRefreshEditForm, detail } = props;
   const customInputStyle = {
     height: "60%",
     marginTop: "0.4rem",
@@ -11,18 +12,8 @@ export default function StudentInfo(props) {
     borderLeft: "none",
     borderRight: "none",
     borderBottom: "0.01rem solid",
+    color: "rgb(114, 152, 185)",
   };
-  const options = [
-    {
-      label: "Khoa công nghệ thông tin",
-      value: "1",
-    },
-    {
-      label: "Khoa Viễn Thông",
-      value: "2",
-    },
-  ];
-
   return (
     <div
       style={{
@@ -40,26 +31,13 @@ export default function StudentInfo(props) {
       >
         <label>Thông tin sinh viên</label>
       </div>
-      <h3>{model?.model.className}</h3>
+      <h3> </h3>
       <form>
-        {/* <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <label style={{ paddingRight: "2.8rem" }}>Khoa</label>
-          <Select
-            options={options}
-            defaultValue={{
-              label: "Khoa công nghệ thông tin",
-              value: "1",
-            }}
-          ></Select>
-        </div> */}
         {/* masv ho ten */}
         <div style={{ display: "flex", justifyContent: "start" }}>
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <label>Mã sinh viên </label>
-            <input
-              style={customInputStyle}
-              defaultValue={model?.model.classCode}
-            ></input>
+            <input style={customInputStyle} defaultValue={detail?.MASV}></input>
           </div>
           <div
             style={{
@@ -71,7 +49,7 @@ export default function StudentInfo(props) {
             <label>Họ tên</label>
             <input
               style={{ ...customInputStyle, width: "75%" }}
-              defaultValue={model?.model.className}
+              defaultValue={detail?.HOTEN}
             ></input>
           </div>
         </div>
@@ -81,7 +59,11 @@ export default function StudentInfo(props) {
             <label>Ngày sinh</label>
             <input
               style={customInputStyle}
-              defaultValue={model?.model.classCode}
+              defaultValue={
+                detail?.NGAYSINH
+                  ? moment(detail?.NGAYSINH).format("DD-MM-YYYY")
+                  : null
+              }
             ></input>
           </div>
           <div
@@ -94,12 +76,18 @@ export default function StudentInfo(props) {
             <label>Phái</label>
             <input
               style={customInputStyle}
-              defaultValue={model?.model.className}
+              defaultValue={
+                detail?.PHAI !== undefined
+                  ? detail?.PHAI
+                    ? "Nữ"
+                    : "Nam"
+                  : null
+              }
             ></input>
           </div>
         </div>
 
-        {/* ngày sinh */}
+        {/* Địa chỉ */}
 
         <div>
           <div style={{ display: "flex", justifyContent: "start" }}>
@@ -110,7 +98,7 @@ export default function StudentInfo(props) {
                 width: "90%",
                 marginLeft: "0.15rem",
               }}
-              defaultValue={model?.model.classCode}
+              defaultValue={detail?.DIACHI}
             ></input>
           </div>
         </div>
@@ -121,7 +109,7 @@ export default function StudentInfo(props) {
             <label>Mã lớp</label>
             <input
               style={customInputStyle}
-              defaultValue={model?.model.classCode}
+              defaultValue={detail?.MALOP}
             ></input>
           </div>
           <div
@@ -135,7 +123,7 @@ export default function StudentInfo(props) {
             <input
               type="checkBox"
               style={customInputStyle}
-              defaultValue={model?.model.className}
+              checked={detail?.DANGHIHOC ? "checked" : ""}
             ></input>
           </div>
         </div>

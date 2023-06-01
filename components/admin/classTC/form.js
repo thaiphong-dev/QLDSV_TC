@@ -157,7 +157,6 @@ export default function ClassTCDetail(props) {
               className="buttonLogicCancel"
               onClick={(e) => {
                 e.preventDefault();
-                console.log("call");
                 setRefreshEditForm(!refreshEditForm);
               }}
             >
