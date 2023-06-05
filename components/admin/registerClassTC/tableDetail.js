@@ -4,10 +4,17 @@ import { toast } from "react-toastify";
 import { adminApi } from "../../services/adminService";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 
-export default function Table(props) {
+export default function TableDetail(props) {
   const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
 
-  const { filters, setShowEditForm } = props;
+  const {
+    filters,
+    filtersRefs,
+    setShowEditForm,
+    showEditForm,
+    detail,
+    tableKey,
+  } = props;
   const rowClass = "rowSelected";
 
   const dsKhoa = JSON.parse(localStorage.getItem("dsPhanManh")).slice(0, 2);
@@ -35,24 +42,25 @@ export default function Table(props) {
   };
 
   useEffect(() => {
-    let prevbtn = document.getElementById("lopTCDK_prev-btn");
+    let prevbtn = document.getElementById("lopTCSVDK_prev-btn");
     if (currentPage === 1) prevbtn.disabled = true;
     else prevbtn.disabled = false;
 
-    let nextbtn = document.getElementById("lopTCDK_next-btn");
+    let nextbtn = document.getElementById("lopTCSVDK_next-btn");
     if (dsLopTCDK?.length < currentPageSize) nextbtn.disabled = true;
     else nextbtn.disabled = false;
   }, [currentPage, dsLopTCDK?.length]);
 
-  const layDsLopTCDk = async () => {
+  const layDsLopTCSvDk = async () => {
     const payload = {
       ...dbConfig,
       ...filters,
+      maSv: "N15DCCN001",
       pageSize: currentPageSize,
       pageNumber: currentPage,
     };
     try {
-      const res = await adminApi.layDsLopTCDK(payload);
+      const res = await adminApi.layDsLopTCSVDK(payload);
       if (res.data) {
         setDsLopTCDK(res.data);
       }
@@ -85,7 +93,7 @@ export default function Table(props) {
   // });
   const [refreshEditForm, setRefreshEditForm] = useState(false);
   useEffect(() => {
-    filters.nienKhoa !== null && filters.hocKy !== null && layDsLopTCDk();
+    filters.nienKhoa !== null && filters.hocKy !== null && layDsLopTCSvDk();
   }, [filters, currentPage, currentPageSize]);
   useEffect(() => {
     setShowEditForm({
@@ -103,7 +111,7 @@ export default function Table(props) {
           backgroundColor: "rgb(206, 199, 199)",
         }}
       >
-        <label>Danh sách Lớp tín chỉ</label>
+        <label>Danh sách Lớp tín chỉ đã đang ký</label>
       </div>
       <div>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -114,11 +122,11 @@ export default function Table(props) {
           >
             <td style={{ width: "4rem" }}></td>
             <td>Mã lớp tín chỉ </td>
+            <td>Niên khóa</td>
+            <td>Học kỳ</td>
             <td>Tên môn học</td>
             <td>Nhóm</td>
             <td>Giảng viên</td>
-            <td>Số sinh viên tối thiểu</td>
-            {/* <td>Số sinh viên đã đăng ký</td> */}
           </tr>
 
           {dsLopTCDK?.map((x, index) => (
@@ -127,17 +135,17 @@ export default function Table(props) {
                 dsLopTCDK?.forEach((e, i) => {
                   if (i !== index)
                     document
-                      .getElementById(`lopTCDK_${i}`)
+                      .getElementById(`lopTCSVDK_${i}`)
                       .classList.remove(rowClass);
                 });
                 document
-                  .getElementById(`lopTCDK_${index}`)
+                  .getElementById(`lopTCSVDK_${index}`)
                   .classList.add(rowClass);
                 setSelectRow(index);
               }}
-              id={`lopTCDK_${index}`}
+              id={`lopTCSVDK_${index}`}
               className={selectedRow === index ? rowClass : ""}
-              key={`lopTCDK_${x.MALOP}`}
+              key={`lopTCSVDK_${x.MALOP}`}
             >
               <td
                 style={{
@@ -146,45 +154,50 @@ export default function Table(props) {
                   cursor: "pointer",
                 }}
               >
-                <div
-                  style={{ width: "100%" }}
-                  onClick={() => {
-                    setShowActionButton({
-                      model: x,
-                      show: true,
-                      index: index,
-                    });
-                  }}
-                  onBlur={() => {
-                    setShowActionButton({
-                      model: {},
-                      show: false,
-                      index: null,
-                    });
-                  }}
-                >
-                  <FontAwesomeIcon icon={faEllipsisVertical} />
+                {x?.COTHEHUY ? (
+                  <div
+                    style={{ width: "100%" }}
+                    onClick={() => {
+                      setShowActionButton({
+                        model: x,
+                        show: true,
+                        index: index,
+                      });
+                    }}
+                    onBlur={() => {
+                      setShowActionButton({
+                        model: {},
+                        show: false,
+                        index: null,
+                      });
+                    }}
+                  >
+                    <FontAwesomeIcon icon={faEllipsisVertical} />
 
-                  {showActionButton?.show &&
-                    showActionButton?.index === index && (
-                      <div
-                        style={{
-                          width: "7rem",
-                          position: "absolute",
-                          left: "3rem",
-                          zIndex: "100",
-                        }}
-                      >
-                        <button className="buttonCustom">Đăng ký</button>
-                      </div>
-                    )}
-                </div>
+                    {showActionButton?.show &&
+                      showActionButton?.index === index && (
+                        <div
+                          style={{
+                            width: "7rem",
+                            position: "absolute",
+                            left: "3rem",
+                            zIndex: "100",
+                          }}
+                        >
+                          <button className="buttonCustom">Hủy lớp </button>
+                        </div>
+                      )}
+                  </div>
+                ) : (
+                  <></>
+                )}
               </td>
               <td>{x.MALTC}</td>
+              <td>{x.NIENKHOA}</td>
+              <td>{x.HOCKY}</td>
               <td>{x.TENMH}</td>
               <td>{x.NHOM}</td>
               <td>{x.TENGV}</td>
-              <td>{x.SOSVTOITHIEU}</td>
             </tr>
           ))}
         </table>
@@ -205,7 +218,7 @@ export default function Table(props) {
         </div>
         <div class="page-number">
           <button
-            id="lopTCDK_prev-btn"
+            id="lopTCSVDK_prev-btn"
             onClick={handleClickPrevious}
             className="prev-btn buttonLogic"
           >
@@ -213,7 +226,7 @@ export default function Table(props) {
           </button>
           <span id="current-page">{currentPage}</span>
           <button
-            id="lopTCDK_next-btn"
+            id="lopTCSVDK_next-btn"
             onClick={handleClickNext}
             className="next-btn buttonLogic"
           >

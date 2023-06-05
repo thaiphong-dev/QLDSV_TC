@@ -33,4 +33,17 @@ export const adminApi = {
   async layDsSinhVien(data) {
     return await axiosClient.post(`dsSinhVien`, data);
   },
+
+  async layDsFilter(data) {
+    return await axiosClient.post(`dsFilter`, data);
+  },
+  async layDsDiemSv(data) {
+    return await axiosClient.post(`dsDiemSv`, data);
+  },
+  async layDsLopTCDK(data) {
+    return await axiosClient.post(`dsLopTCDK`, data);
+  },
+  async layDsLopTCSVDK(data) {
+    return await axiosClient.post(`dsLopTCSVDK`, data);
+  },
 };

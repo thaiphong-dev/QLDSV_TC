@@ -5,7 +5,10 @@ import queryString from "query-string";
 const axiosClient = axios.create({
   baseURL: "http://localhost:8080/",
   headers: {
-    "content-type": "application/json",
+    "x-Powered-By": "Express",
+    "content-type": "application/json; charset=utf-8",
+    "access-Control-Allow-Headers":
+      "authorization, Origin, Content-Type, Accept",
   },
   paramsSerializer: (params) => queryString.stringify(params),
 });

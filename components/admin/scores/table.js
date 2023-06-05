@@ -4,11 +4,40 @@ import { toast } from "react-toastify";
 import { adminApi } from "../../services/adminService";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 
-export default function Table() {
-  const rowClass = "rowSelected";
+export default function Table(props) {
+  const { filters, filtersRefs, setShowEditForm, showEditForm } = props;
+  console.log("calllsdlasdla", filters);
 
-  const dsKhoa = JSON.parse(localStorage.getItem("dsPhanManh")).slice(0, 2);
-  const [dsLop, setDsLop] = useState();
+  const rowClass = "rowSelected";
+  const [detail, setDetail] = useState([]);
+
+  // lay ds điểm sv
+  const layDsDiemSv = async () => {
+    const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
+    const payload = {
+      ...dbConfig,
+      ...filters,
+      pageSize: currentPageSize,
+      pageNumber: currentPage,
+    };
+    try {
+      const res = await adminApi.layDsDiemSv(payload);
+      if (res.data) {
+        setDetail(res.data);
+      }
+    } catch (error) {
+      toast.error(error, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  };
 
   // login phân trang
   const [currentPage, setCurrentPage] = useState(1);
@@ -37,70 +66,13 @@ export default function Table() {
     else prevbtn.disabled = false;
 
     let nextbtn = document.getElementById("scores_next-btn");
-    if (dsLop?.length < currentPageSize) nextbtn.disabled = true;
+    if (detail?.length < currentPageSize) nextbtn.disabled = true;
     else nextbtn.disabled = false;
-  }, [currentPage, dsLop?.length]);
+  }, [currentPage, detail?.length]);
 
   //
-  const layDsLop = async () => {
-    const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
-    const payload = {
-      ...dbConfig,
-      pageSize: currentPageSize,
-      pageNumber: currentPage,
-    };
-    try {
-      const res = await adminApi.layDsLop(payload);
-      if (res.data) {
-        setDsLop(res.data);
-        layDsSinhVien(res.data?.[0].MALOP);
-      }
-    } catch (error) {
-      toast.error(error, {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    }
-  };
-  const [dsSinhVien, setDsSinhVien] = useState();
 
-  const layDsSinhVien = async (maLop) => {
-    const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
-    const payload = {
-      ...dbConfig,
-      maLop: maLop,
-    };
-    try {
-      const res = await adminApi.layDsSinhVien(payload);
-      if (res.data) {
-        setDsSinhVien(res.data);
-      }
-    } catch (error) {
-      toast.error(error, {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    }
-  };
   const [selectedRow, setSelectRow] = useState(0);
-
-  const [keyFirst, setKeyFirst] = useState(true);
-
-  useEffect(() => {
-    layDsLop();
-  }, [currentPage, currentPageSize]);
 
   const [showActionButton, setShowActionButton] = useState({
     model: {},
@@ -108,11 +80,6 @@ export default function Table() {
     index: null,
   });
 
-  const [showEditForm, setShowEditForm] = useState({
-    model: {},
-    show: false,
-    index: null,
-  });
   const [refreshEditForm, setRefreshEditForm] = useState(false);
 
   useEffect(() => {
@@ -122,11 +89,26 @@ export default function Table() {
       index: null,
     });
   }, [refreshEditForm]);
+  useEffect(() => {
+    {
+      filters.nienKhoa !== null &&
+        filters.hocKy !== null &&
+        filters.nhom !== null &&
+        filters.monHoc !== null &&
+        layDsDiemSv();
+    }
+  }, [filters, currentPage, currentPageSize]);
 
   return (
     <div>
       <div>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            textAlign: "center",
+          }}
+        >
           <tr
             style={{
               backgroundColor: "rgb(114, 152, 185)",
@@ -142,22 +124,23 @@ export default function Table() {
             <td>Điểm tổng kết</td>
           </tr>
 
-          {dsLop?.map((x, index) => (
+          {detail?.map((x, index) => (
             <tr
               onClick={() => {
-                dsLop?.forEach((e, i) => {
+                detail?.forEach((e, i) => {
                   if (i !== index)
                     document
-                      .getElementById(`lop_${i}`)
+                      .getElementById(`diemSv_${i}`)
                       .classList.remove(rowClass);
                 });
-                document.getElementById(`lop_${index}`).classList.add(rowClass);
+                document
+                  .getElementById(`diemSv_${index}`)
+                  .classList.add(rowClass);
                 setSelectRow(index);
-                layDsSinhVien(x.MALOP);
               }}
-              id={`lop_${index}`}
+              id={`diemSv_${index}`}
               className={selectedRow === index ? rowClass : ""}
-              key={`lop_${x.MALOP}`}
+              key={`diemSv_${x.MALOP}`}
             >
               <td
                 style={{
@@ -213,10 +196,29 @@ export default function Table() {
                     )}
                 </div>
               </td>
-              <td>{x.MALOP}</td>
-              <td>{x.TENLOP}</td>
-              <td>{x.KHOAHOC}</td>
-              <td>{x.KHOA}</td>
+              <td>{x.MALTC}</td>
+              <td>{x.MASV}</td>
+              <td>{x.HOTEN}</td>
+              <td>
+                {x.DIEM_CC
+                  ? (Math.round(parseFloat(x.DIEM_CC) * 2) / 2).toFixed(1)
+                  : null}
+              </td>
+              <td>
+                {x.DIEM_GK
+                  ? (Math.floor(parseFloat(x.DIEM_GK) * 2) / 2).toFixed(1)
+                  : null}
+              </td>
+              <td>
+                {x.DIEM_CK
+                  ? (Math.floor(parseFloat(x.DIEM_CK) * 2) / 2).toFixed(1)
+                  : null}
+              </td>
+              <td>
+                {x.DIEM_TK
+                  ? (Math.floor(parseFloat(x.DIEM_TK) * 2) / 2).toFixed(1)
+                  : null}
+              </td>
             </tr>
           ))}
         </table>

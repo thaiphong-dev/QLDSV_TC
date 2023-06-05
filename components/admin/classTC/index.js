@@ -129,7 +129,7 @@ export default function ClassTC() {
   };
 
   const [dsKhoa, setdsKhoa] = useState();
-  // lấy lớp Khoa
+  // lấy ds Khoa
   const layDsKhoa = async () => {
     try {
       const res = await adminApi.layDsKhoa(dbConfig);
@@ -157,8 +157,13 @@ export default function ClassTC() {
   // lấy môn học
   const [dsMonHoc, setDsMMonHoc] = useState();
   const layDsMonHoc = async () => {
+    const payload = {
+      ...dbConfig,
+      pageSize: 100,
+      pageNumber: 1,
+    };
     try {
-      const res = await adminApi.layDsMonHoc(dbConfig);
+      const res = await adminApi.layDsMonHoc(payload);
       if (res.data) {
         setDsMMonHoc(res.data);
       }
