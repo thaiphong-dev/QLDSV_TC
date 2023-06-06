@@ -9,7 +9,9 @@ import { toast } from "react-toastify";
 export default function Subject() {
   const dsKhoa = JSON.parse(localStorage.getItem("dsPhanManh")).slice(0, 2);
   const [dsMonHoc, setDsMMonHoc] = useState();
-
+  const [currentCN, setCurrentCN] = useState(
+    JSON.parse(localStorage.getItem("currentCN"))
+  );
   // login phân trang
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageSize, setCurrentPageSize] = useState(5);
@@ -46,7 +48,9 @@ export default function Subject() {
   const layDsMonHoc = async () => {
     const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
     const payload = {
-      ...dbConfig,
+      chiNhanh: currentCN.value,
+      password: dbConfig.password,
+      user: dbConfig.user,
       pageSize: currentPageSize,
       pageNumber: currentPage,
     };
@@ -70,7 +74,7 @@ export default function Subject() {
   };
   useEffect(() => {
     layDsMonHoc();
-  }, [currentPage, currentPageSize]);
+  }, [currentCN, currentPage, currentPageSize]);
 
   const [showActionButton, setShowActionButton] = useState({
     model: {},
@@ -108,11 +112,21 @@ export default function Subject() {
             Khoa
           </label>
           <div style={{ width: "30%" }}>
-            <Select defaultValue={dsKhoa[0]} options={dsKhoa}></Select>
+            <Select
+              defaultValue={currentCN}
+              options={dsKhoa}
+              onChange={(value) => {
+                localStorage.setItem("currentCN", JSON.stringify(value));
+                setCurrentCN(value);
+              }}
+            ></Select>
           </div>
         </div>
 
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <table
+          key={currentCN?.value}
+          style={{ width: "100%", borderCollapse: "collapse" }}
+        >
           <tr style={{ backgroundColor: "rgb(114, 152, 185)" }}>
             <td style={{ width: "4rem" }}></td>
             <td>Mã lớp</td>

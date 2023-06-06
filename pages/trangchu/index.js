@@ -22,6 +22,9 @@ export default function Main() {
     { label: "Cấu hình", value: "system" },
   ];
 
+  const listMenuSV = [{ label: "Quản Trị", value: "admin" }];
+  const isSV = JSON.parse(localStorage.getItem("isSV"));
+
   const [currentMenuValue, setCurrentMenuValue] = useState(
     JSON.parse(localStorage.getItem("menu"))
   );
@@ -38,7 +41,7 @@ export default function Main() {
       >
         <MainMenu
           keyMenu="level1"
-          listMenu={listMenu}
+          listMenu={isSV ? listMenuSV : listMenu}
           levelMenu="menuLevel1"
           itemLevel="itemLevel1"
           activeClass="itemLevel1_active"

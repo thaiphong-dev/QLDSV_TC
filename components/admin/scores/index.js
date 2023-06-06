@@ -24,6 +24,7 @@ export default function Scores() {
   });
 
   const [refresh, setRefresh] = useState(1);
+  const [refreshTable, setRefreshTable] = useState(true);
   return (
     <div>
       <Filters
@@ -34,13 +35,21 @@ export default function Scores() {
       />
       <div key={refresh}>
         <Table
+          refreshTable={refreshTable}
           showEditForm={showEditForm}
           setShowEditForm={setShowEditForm}
           filtersRef={filtersRef}
           filters={filters}
         />
       </div>
-      <ScoreDetail model={showEditForm} />
+      <div key={showEditForm.show}>
+        <ScoreDetail
+          refreshTable={refreshTable}
+          setRefreshTable={setRefreshTable}
+          setShowEditForm={setShowEditForm}
+          model={showEditForm}
+        />
+      </div>
     </div>
   );
 }

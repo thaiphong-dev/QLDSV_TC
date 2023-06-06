@@ -9,6 +9,8 @@ import RegisterClassTC from "./registerClassTC";
 import Tution from "./tuition";
 
 export default function Admin() {
+  const isSV = JSON.parse(localStorage.getItem("isSV"));
+
   const listMenu = [
     { label: "Lớp", value: "class" },
     { label: "Môn học", value: "subject" },
@@ -19,12 +21,21 @@ export default function Admin() {
     { label: "Học phí", value: "tuition" },
   ];
 
-  const [currentMenu, setCurrentMenu] = useState("class");
+  const listMenuSV = [
+    { label: "Đăng kí Lớp tín chỉ", value: "registerClassTC" },
+  ];
+
+  const [currentMenu, setCurrentMenu] = useState(
+    isSV ? "registerClassTC" : "class"
+  );
 
   const [currentMenuValue, setCurrentMenuValue] = useState(
     JSON.parse(localStorage.getItem("menu"))
   );
   useEffect(() => {
+    let startCN = JSON.parse(localStorage.getItem("startCN"));
+    localStorage.setItem("currentCN", JSON.stringify(startCN));
+
     setCurrentMenuValue(JSON.parse(localStorage.getItem("menu")));
   }, [currentMenu]);
 
@@ -32,7 +43,7 @@ export default function Admin() {
     <div key={currentMenuValue}>
       <MainMenu
         keyMenu="level2"
-        listMenu={listMenu}
+        listMenu={isSV ? listMenuSV : listMenu}
         levelMenu="menuLevel2"
         itemLevel="itemLevel2"
         activeClass="itemLevel2_active"

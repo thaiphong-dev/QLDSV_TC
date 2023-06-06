@@ -11,6 +11,9 @@ import { adminApi } from "../../services/adminService";
 export default function Student() {
   const rowClass = "rowSelected";
 
+  const [currentCN, setCurrentCN] = useState(
+    JSON.parse(localStorage.getItem("currentCN"))
+  );
   const dsKhoa = JSON.parse(localStorage.getItem("dsPhanManh")).slice(0, 2);
   const [dsLop, setDsLop] = useState();
   const [svSelected, setSvSelected] = useState();
@@ -50,7 +53,9 @@ export default function Student() {
   const layDsLop = async () => {
     const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
     const payload = {
-      ...dbConfig,
+      chiNhanh: currentCN.value,
+      password: dbConfig.password,
+      user: dbConfig.user,
       pageSize: currentPageSize,
       pageNumber: currentPage,
     };
@@ -78,7 +83,9 @@ export default function Student() {
   const layDsSinhVien = async (maLop) => {
     const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
     const payload = {
-      ...dbConfig,
+      chiNhanh: currentCN.value,
+      password: dbConfig.password,
+      user: dbConfig.user,
       maLop: maLop,
       pageSize: currentPageSize,
       pageNumber: currentPage,
@@ -108,7 +115,7 @@ export default function Student() {
 
   useEffect(() => {
     layDsLop();
-  }, [currentPage, currentPageSize]);
+  }, [currentCN, currentPage, currentPageSize]);
 
   const [showActionButton, setShowActionButton] = useState({
     model: {},
@@ -146,11 +153,21 @@ export default function Student() {
             Khoa
           </label>
           <div style={{ width: "30%" }}>
-            <Select options={dsKhoa}></Select>
+            <Select
+              defaultValue={currentCN}
+              options={dsKhoa}
+              onChange={(value) => {
+                localStorage.setItem("currentCN", JSON.stringify(value));
+                setCurrentCN(value);
+              }}
+            ></Select>
           </div>
         </div>
 
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <table
+          key={currentCN?.value}
+          style={{ width: "100%", borderCollapse: "collapse" }}
+        >
           <tr
             style={{
               backgroundColor: "rgb(114, 152, 185)",

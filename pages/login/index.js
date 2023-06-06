@@ -9,6 +9,7 @@ import { useRef } from "react";
 import { useState } from "react";
 import { useRouter } from "next/router";
 function Login() {
+  const [isSV, setIsSV] = useState(false);
   const [dsPhanManh, setDsPhanManh] = useState([]);
   const router = useRouter();
   const laydsPhanManh = async () => {
@@ -36,13 +37,7 @@ function Login() {
     setds();
   }, []);
 
-  const menu = {
-    parentMenu: "admin",
-    secondMenu: "class",
-  };
-  useEffect(() => {
-    localStorage.setItem("menu", JSON.stringify(menu));
-  }, []);
+  useEffect(() => {}, []);
 
   const customStyles = {
     content: {
@@ -56,16 +51,25 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const payload = {
+    const commonPayload = {
       chiNhanh: currentCn.current?.value,
-      user: currentTk.current,
-      password: currentMk.current,
+      user: isSV ? "TTP" : currentTk.current,
+      password: isSV ? "123" : currentMk.current,
     };
+    console.log("payload", commonPayload);
+    console.log("isSV", isSV);
+
     try {
-      const res = await loginApi.dangNhap(payload);
+      const res = isSV
+        ? await loginApi.dangNhapSV({
+            ...commonPayload,
+            maSV: currentTk.current,
+          })
+        : await loginApi.dangNhap(commonPayload);
       if (res?.data) {
+        localStorage.setItem("isSV", JSON.stringify(isSV));
         localStorage.setItem("userLogin", JSON.stringify(res.data));
-        localStorage.setItem("currentDB", JSON.stringify(payload));
+        localStorage.setItem("currentDB", JSON.stringify(commonPayload));
         toast.success("Đăng nhập thành công!", {
           position: "top-right",
           autoClose: 2000,
@@ -76,6 +80,14 @@ function Login() {
           progress: undefined,
           theme: "light",
         });
+
+        const menu = {
+          parentMenu: "admin",
+          secondMenu: isSV ? "registerClassTC" : "class",
+        };
+
+        localStorage.setItem("menu", JSON.stringify(menu));
+
         router.push("/trangchu");
       }
     } catch (error) {
@@ -119,6 +131,8 @@ function Login() {
                     placeholder="Chọn chi nhánh"
                     onChange={(value) => {
                       currentCn.current = value;
+                      localStorage.setItem("currentCN", JSON.stringify(value));
+                      localStorage.setItem("startCN", JSON.stringify(value));
                     }}
                   ></Select>
                 </div>
@@ -156,6 +170,18 @@ function Login() {
                   marginTop: "1.5rem",
                 }}
               >
+                <div style={{ marginRight: "2rem" }}>
+                  <input
+                    id="SV"
+                    name="SV"
+                    type="checkbox"
+                    onChange={(e) => {
+                      setIsSV(e.target.checked);
+                      console.log("eee", e.target.checked);
+                    }}
+                  ></input>
+                  <label for="SV">Sinh viên</label>
+                </div>
                 <button onClick={(e) => handleLogin(e)}>
                   {/* <Link href="main">Đăng nhập</Link> */}
                   Đăng nhập

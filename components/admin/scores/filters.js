@@ -4,6 +4,11 @@ import { adminApi } from "../../services/adminService";
 import { toast } from "react-toastify";
 
 export default function Filters(props) {
+  const [currentCN, setCurrentCN] = useState(
+    JSON.parse(localStorage.getItem("currentCN"))
+  );
+  const dsKhoas = JSON.parse(localStorage.getItem("dsPhanManh")).slice(0, 2);
+
   const { filters, setFilters, filtersRef, setRefresh } = props;
 
   const filtersData = filters;
@@ -13,8 +18,13 @@ export default function Filters(props) {
   const [dsKhoa, setdsKhoa] = useState();
   // lấy ds Khoa
   const layDsKhoa = async () => {
+    const payload = {
+      chiNhanh: currentCN.value,
+      password: dbConfig.password,
+      user: dbConfig.user,
+    };
     try {
-      const res = await adminApi.layDsKhoa(dbConfig);
+      const res = await adminApi.layDsKhoa(payload);
       if (res.data) {
         const dsKhoaOptions = Array.from(new Set(res.data))?.map((x) => ({
           label: x.TENKHOA.trim(),
@@ -39,8 +49,13 @@ export default function Filters(props) {
   const [dsFilter, setdsFilter] = useState();
   // lấy ds Filter
   const layDsFilter = async () => {
+    const payload = {
+      chiNhanh: currentCN.value,
+      password: dbConfig.password,
+      user: dbConfig.user,
+    };
     try {
-      const res = await adminApi.layDsFilter(dbConfig);
+      const res = await adminApi.layDsFilter(payload);
       if (res.data) {
         const data = {
           nienKhoa: res.data?.nienKhoa?.map((x) => ({
@@ -76,9 +91,10 @@ export default function Filters(props) {
   // lấy ds môn học
   const [dsMonHoc, setDsMonHoc] = useState();
   const layDsMonHoc = async () => {
-    const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
     const payload = {
-      ...dbConfig,
+      chiNhanh: currentCN.value,
+      password: dbConfig.password,
+      user: dbConfig.user,
       pageSize: 100,
       pageNumber: 1,
     };
@@ -109,7 +125,7 @@ export default function Filters(props) {
     layDsKhoa();
     layDsMonHoc();
     layDsFilter();
-  }, []);
+  }, [currentCN]);
 
   return (
     <div style={{ backgroundColor: "#c2bdbd", paddingBottom: "0.2rem" }}>
@@ -125,19 +141,23 @@ export default function Filters(props) {
             <label style={{ paddingRight: "2rem", fontWeight: "bold" }}>
               Khoa
             </label>
-            <div style={{ width: "15rem" }}>
+            <div style={{ width: "18rem" }}>
               <Select
-                options={dsKhoa}
-                defaultValue={{
-                  label: "Khoa công nghệ thông tin",
-                  value: "1",
+                defaultValue={currentCN}
+                options={dsKhoas}
+                onChange={(value) => {
+                  localStorage.setItem("currentCN", JSON.stringify(value));
+                  setCurrentCN(value);
                 }}
               ></Select>
             </div>
           </div>
         </div>
 
-        <div style={{ position: "relative", paddingLeft: "23rem" }}>
+        <div
+          key={currentCN?.value}
+          style={{ position: "relative", paddingLeft: "23rem" }}
+        >
           <div
             style={{
               display: "flex",

@@ -1,55 +1,46 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactModal from "react-modal";
 import Select from "react-select";
 import { adminApi } from "../../services/adminService";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 export default function ScoreDetail(props) {
+  console.log("sadsada", props);
   const {
     model,
-    refreshEditForm,
-    setRefreshEditForm,
-    dsMonHoc,
-    dsGiangVien,
-    dsKhoa,
+
     refreshTable,
-    refresh,
     setRefreshTable,
-    taoLopTC,
+    setShowEditForm,
   } = props;
 
   const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
-
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     control,
     formState: { errors },
   } = useForm();
+
   const onSubmit = async (data) => {
     const payload = {
       ...dbConfig,
-      nienKhoa: data?.nienKhoa,
-      hocKy: data?.hocKy,
-      nhom: data?.nhom,
-      svtoithieu: data?.svtoithieu,
-      huyLop: data?.huyLop,
-      monHoc: data?.monHoc?.value,
-      giangVien: data?.giangVien?.value,
-      khoa: data?.khoa?.value,
+      maLop: model.model.MALTC,
+      maSv: model.model.MASV,
+      diemCc: parseFloat(data.diemCc),
+      diemGk: parseFloat(data.diemGk),
+      diemCk: parseFloat(data.diemCk),
     };
-    taoLopTC(payload);
+    // taoLopTC(payload);
+    console.log("payload", payload);
   };
-  const dsMonHocOptions = dsMonHoc?.map((x) => ({
-    label: x.TENMH.trim(),
-    value: x.MAMH.trim(),
-  }));
 
-  const dsGiangVienOptions = dsGiangVien?.map((x) => ({
-    label: x.HOTEN.trim(),
-    value: x.MAGV.trim(),
-  }));
+  const formatValue = (num) => {
+    console.log("call", num);
+    return (Math.floor(parseFloat(num) * 2) / 2).toFixed(1);
+  };
 
   const customStyles = {
     content: {
@@ -61,6 +52,14 @@ export default function ScoreDetail(props) {
     },
   };
 
+  // useEffect(() => {
+  //   let diemCc = watch("diemCc");
+  //   console.log("diemcc", diemCc);
+  //   setTimeout(() => {
+  //     setValue("diemCc", formatValue(diemCc));
+  //   }, 1000);
+  // }, [watch("diemCc")]);
+
   return (
     <ReactModal
       isOpen={model.show}
@@ -71,71 +70,103 @@ export default function ScoreDetail(props) {
         <h3>{model.model.className}</h3>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div>
-            <label>Niên khóa</label>
+            <label>Mã lớp</label>
             <input
-              {...register("nienKhoa")}
+              disabled
+              {...register("maLop")}
               style={{ width: "100%" }}
-              defaultValue={model.model.classCode}
+              defaultValue={model.model.MALTC}
             ></input>
           </div>
           <div>
-            <label>Học kỳ</label>
+            <label>Mã sinh viên</label>
+            <input
+              disabled
+              {...register("maSv")}
+              style={{ width: "100%" }}
+              defaultValue={model.model.MASV}
+            ></input>
+          </div>
+          <div>
+            <label>Họ tên</label>
+            <input
+              disabled
+              {...register("hoTen")}
+              style={{ width: "100%" }}
+              defaultValue={model.model.HOTEN}
+            ></input>
+          </div>
+          <div>
+            <label>Điểm chuyên cần</label>
             <input
               type="number"
-              {...register("hocKy")}
+              step=".1"
+              min={0}
+              max={10}
+              // onChange={(e) => {
+              //   console.log("change", e.target.value);
+              //   setValue("diemCc", formatValue(e.target.value));
+              // }}
+              {...register("diemCc")}
               style={{ width: "100%" }}
-              defaultValue={model.model.classCode}
+              defaultValue={
+                (Math.floor(parseFloat(model.model.DIEM_CK) * 2) / 2).toFixed(
+                  1
+                ) ?? null
+              }
             ></input>
           </div>
+
           <div>
-            <label>Môn học</label>
-            <Controller
-              name="monHoc"
-              control={control}
-              render={({ field }) => (
-                <Select {...field} options={dsMonHocOptions} />
-              )}
-            />
-          </div>
-          <div>
-            <label>Nhóm</label>
+            <label>Điểm giữa kì</label>
             <input
               type="number"
-              {...register("nhom")}
+              step=".1"
+              min={0}
+              max={10}
+              {...register("diemGk")}
               style={{ width: "100%" }}
-              defaultValue={model.model.classCode}
+              defaultValue={
+                (Math.floor(parseFloat(model.model.DIEM_GK) * 2) / 2).toFixed(
+                  1
+                ) ?? null
+              }
             ></input>
           </div>
+
           <div>
-            <label>Giáng viên</label>
-            <Controller
-              name="giangVien"
-              control={control}
-              render={({ field }) => (
-                <Select {...field} options={dsGiangVienOptions} />
-              )}
-            />
-          </div>
-          <div>
-            <label>Khoa</label>
-            <Controller
-              name="khoa"
-              control={control}
-              render={({ field }) => <Select {...field} options={dsKhoa} />}
-            />
-          </div>
-          <div>
-            <label>số sinh viên tối thiểu</label>
+            <label>Điểm cuối kì</label>
             <input
-              {...register("svtoithieu")}
               type="number"
+              step=".1"
+              min={0}
+              max={10}
+              {...register("diemCk")}
               style={{ width: "100%" }}
-              defaultValue={model.model.classCode}
+              defaultValue={
+                (Math.floor(parseFloat(model.model.DIEM_CK) * 2) / 2).toFixed(
+                  1
+                ) ?? null
+              }
             ></input>
           </div>
-          <div style={{ paddingLeft: "15rem" }}>
-            <label>Hủy lớp</label>
-            <input {...register("huyLop")} type="checkbox"></input>
+
+          <div>
+            <label>Điểm tổng kết</label>
+            <input
+              disabled
+              type="number"
+              step=".1"
+              min={0}
+              max={10}
+              {...register("diemTk")}
+              style={{ width: "100%" }}
+              defaultValue={
+                (Math.floor(parseFloat(model.model.DIEM_TK) * 2) / 2).toFixed(
+                  1
+                ) ?? null
+              }
+            ></input>
           </div>
           <div
             style={{
@@ -157,7 +188,11 @@ export default function ScoreDetail(props) {
               className="buttonLogicCancel"
               onClick={(e) => {
                 e.preventDefault();
-                setRefreshEditForm(!refreshEditForm);
+                setShowEditForm({
+                  model: {},
+                  show: false,
+                  index: null,
+                });
               }}
             >
               Thoát

@@ -5,7 +5,7 @@ import { adminApi } from "../../services/adminService";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 
 export default function Table(props) {
-  const { filters, filtersRefs, setShowEditForm, showEditForm } = props;
+  const { filters, filtersRefs, setShowEditForm, refreshTable } = props;
   console.log("calllsdlasdla", filters);
 
   const rowClass = "rowSelected";
@@ -68,7 +68,7 @@ export default function Table(props) {
     let nextbtn = document.getElementById("scores_next-btn");
     if (detail?.length < currentPageSize) nextbtn.disabled = true;
     else nextbtn.disabled = false;
-  }, [currentPage, detail?.length]);
+  }, [refreshTable, currentPage, detail?.length]);
 
   //
 
@@ -188,10 +188,8 @@ export default function Table(props) {
                             })
                           }
                         >
-                          Chỉnh sửa
+                          Nhập điểm
                         </button>
-                        <button className="buttonCustom">DS sinh viên</button>
-                        <button className="buttonCustom">xóa</button>
                       </div>
                     )}
                 </div>

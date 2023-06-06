@@ -8,6 +8,11 @@ import ClassTCDetail from "./form";
 import { ToastContainer, toast } from "react-toastify";
 
 export default function ClassTC() {
+  const dsKhoas = JSON.parse(localStorage.getItem("dsPhanManh")).slice(0, 2);
+
+  const [currentCN, setCurrentCN] = useState(
+    JSON.parse(localStorage.getItem("currentCN"))
+  );
   const [dsLop, setDsLop] = useState();
   const [refreshTable, setRefreshTable] = useState(true);
   const [refres, setRefresh] = useState(true);
@@ -84,7 +89,9 @@ export default function ClassTC() {
   // lấy lớp tín chỉ
   const layDsLop = async () => {
     const payload = {
-      ...dbConfig,
+      chiNhanh: currentCN.value,
+      password: dbConfig.password,
+      user: dbConfig.user,
       pageSize: currentPageSize,
       pageNumber: currentPage,
     };
@@ -186,7 +193,7 @@ export default function ClassTC() {
 
   useEffect(() => {
     layDsLop();
-  }, [refreshTable, currentPage, currentPageSize]);
+  }, [currentCN, refreshTable, currentPage, currentPageSize]);
 
   const [showActionButton, setShowActionButton] = useState({
     model: {},
@@ -224,9 +231,12 @@ export default function ClassTC() {
           </label>
           <div style={{ width: "30%" }}>
             <Select
-              key={dsKhoa?.length}
-              defaultValue={dsKhoa?.[0]}
-              options={dsKhoa}
+              defaultValue={currentCN}
+              options={dsKhoas}
+              onChange={(value) => {
+                localStorage.setItem("currentCN", JSON.stringify(value));
+                setCurrentCN(value);
+              }}
             ></Select>
           </div>
         </div>
@@ -245,7 +255,7 @@ export default function ClassTC() {
           Tạo mới
         </button>
         <table
-          key={[refres, refreshTable]}
+          key={[currentCN?.value, refres, refreshTable]}
           style={{ width: "100%", borderCollapse: "collapse" }}
           className="table-container"
         >
