@@ -3,10 +3,48 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { adminApi } from "../../services/adminService";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
+import moment from "moment";
 
-export default function Table(props) {
-  const { SVInfo, setHocPhi, setRefreshCtHocPhi, refreshCtHocPhi } = props;
+export default function TableDetail(props) {
+  const { SVInfo, hocPhi } = props;
+  useEffect(() => {
+    console.log("hocPhi", hocPhi);
+  }, [hocPhi]);
+
   const rowClass = "rowSelected";
+  const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
+
+  const dsKhoa = JSON.parse(localStorage.getItem("dsPhanManh")).slice(0, 2);
+
+  const [CTHocPhi, setCTHocPhi] = useState([]);
+  // lấy ds học phí
+  const layCTHocPhi = async () => {
+    const payload = {
+      ...dbConfig,
+      MASV: hocPhi?.MASV,
+      NIENKHOA: hocPhi?.NIENKHOA,
+      HOCKY: hocPhi?.HOCKY,
+      pageSize: currentPageSize,
+      pageNumber: currentPage - 1,
+    };
+    try {
+      const res = await adminApi.layCTHocPhi(payload);
+      if (res.data) {
+        setCTHocPhi(res.data);
+      }
+    } catch (error) {
+      toast.error(error, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  };
 
   // login phân trang
   const [currentPage, setCurrentPage] = useState(1);
@@ -28,52 +66,24 @@ export default function Table(props) {
       setCurrentPage(page);
     }
   };
-  const [dsHocPhi, setDsHocPhi] = useState([]);
-  // lấy ds học phí
-  const layDsHocPhi = async () => {
-    const payload = {
-      ...dbConfig,
-      MASV: SVInfo?.MASV,
-      pageSize: currentPageSize,
-      pageNumber: currentPage,
-    };
-    try {
-      const res = await adminApi.layDsHocPhi(payload);
-      if (res.data) {
-        setDsHocPhi(res.data);
-      }
-    } catch (error) {
-      toast.error(error, {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    }
-  };
 
   useEffect(() => {
-    layDsHocPhi();
-  }, [SVInfo?.MASV, currentPage, currentPageSize]);
-
-  useEffect(() => {
-    let prevbtn = document.getElementById("tuition_prev-btn");
+    let prevbtn = document.getElementById("tuitionDetail_prev-btn");
     if (currentPage === 1) prevbtn.disabled = true;
     else prevbtn.disabled = false;
 
-    let nextbtn = document.getElementById("tuition_next-btn");
-    if (dsHocPhi?.length < currentPageSize) nextbtn.disabled = true;
+    let nextbtn = document.getElementById("tuitionDetail_next-btn");
+    if (CTHocPhi?.length < currentPageSize) nextbtn.disabled = true;
     else nextbtn.disabled = false;
-  }, [currentPage, dsHocPhi?.length]);
+  }, [currentPage, CTHocPhi?.length]);
 
   //
-  const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
 
   const [selectedRow, setSelectRow] = useState(0);
+
+  useEffect(() => {
+    layCTHocPhi();
+  }, [currentPage, currentPageSize]);
 
   const [showActionButton, setShowActionButton] = useState({
     model: {},
@@ -106,31 +116,26 @@ export default function Table(props) {
             }}
           >
             <td style={{ width: "4rem" }}></td>
-            <td>Niên khóa </td>
-            <td>Học kỳ</td>
-            <td>Học phí</td>
-            <td>Số tiền đã đóng</td>
-            <td>Số tiền cần đóng</td>
+            <td>Ngày đóng</td>
+            <td>Số tiền đóng</td>
           </tr>
 
-          {dsHocPhi?.map((x, index) => (
+          {CTHocPhi?.map((x, index) => (
             <tr
               onClick={() => {
-                dsHocPhi?.forEach((e, i) => {
+                CTHocPhi?.forEach((e, i) => {
                   if (i !== index)
                     document
-                      .getElementById(`tuition${i}`)
+                      .getElementById(`tuitionDetail${i}`)
                       .classList.remove(rowClass);
                 });
                 document
-                  .getElementById(`tuition${index}`)
+                  .getElementById(`tuitionDetail${index}`)
                   .classList.add(rowClass);
-                setHocPhi(x);
-                setRefreshCtHocPhi(!refreshCtHocPhi);
-                // layDsSinhVien(x.MALOP);
+                setSelectRow(index);
               }}
-              id={`tuition${index}`}
-              key={`tuition${x.MALOP}`}
+              id={`tuitionDetail${index}`}
+              key={`tuitionDetail${x.MALOP}`}
             >
               <td
                 style={{
@@ -186,11 +191,8 @@ export default function Table(props) {
                     )}
                 </div>
               </td>
-              <td>{x.NIENKHOA}</td>
-              <td>{x.HOCKY}</td>
-              <td>{x.HOCPHI}</td>
-              <td>{x.SOTIENDADONG}</td>
-              <td>{x.SOTIENCANDONG}</td>
+              <td>{moment(x.NGAYDONG).format("DD-MM-YYYY")}</td>
+              <td>{x.SOTIENDONG}</td>
             </tr>
           ))}
         </table>
@@ -211,7 +213,7 @@ export default function Table(props) {
         </div>
         <div class="page-number">
           <button
-            id="tuition_prev-btn"
+            id="tuitionDetail_prev-btn"
             onClick={handleClickPrevious}
             className="prev-btn buttonLogic"
           >
@@ -219,7 +221,7 @@ export default function Table(props) {
           </button>
           <span id="current-page">{currentPage}</span>
           <button
-            id="tuition_next-btn"
+            id="tuitionDetail_next-btn"
             onClick={handleClickNext}
             className="next-btn buttonLogic"
           >

@@ -52,4 +52,15 @@ export const adminApi = {
   async ghiDiemSV(data) {
     return await axiosClient.post(`ghiDiemSV`, data);
   },
+  async layDsHocPhi(data) {
+    return await axiosClient.post(`dsHocPhi`, data);
+  },
+
+  async laySinhVien(data) {
+    return await axiosClient.post(`laySinhVien`, data);
+  },
+
+  async layCTHocPhi(data) {
+    return await axiosClient.post(`layCTHocPhi`, data);
+  },
 };
