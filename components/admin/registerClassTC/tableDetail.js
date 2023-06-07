@@ -6,6 +6,7 @@ import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 
 export default function TableDetail(props) {
   const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
+  const userLogin = JSON.parse(localStorage.getItem("userLogin"));
 
   const {
     filters,
@@ -14,9 +15,13 @@ export default function TableDetail(props) {
     showEditForm,
     detail,
     tableKey,
+    setDsDaDk,
+    dsDaDk,
+    isCallData,
+    setISCallData,
   } = props;
   const rowClass = "rowSelected";
-
+  const [refresh, setRefresh] = useState(true);
   const dsKhoa = JSON.parse(localStorage.getItem("dsPhanManh")).slice(0, 2);
 
   // login phân trang
@@ -47,9 +52,9 @@ export default function TableDetail(props) {
     else prevbtn.disabled = false;
 
     let nextbtn = document.getElementById("lopTCSVDK_next-btn");
-    if (dsLopTCDK?.length < currentPageSize) nextbtn.disabled = true;
+    if (dsDaDk?.length < currentPageSize) nextbtn.disabled = true;
     else nextbtn.disabled = false;
-  }, [currentPage, dsLopTCDK?.length]);
+  }, [currentPage, dsLopTCDK?.length, dsDaDk?.length]);
 
   const layDsLopTCSvDk = async () => {
     const payload = {
@@ -62,7 +67,43 @@ export default function TableDetail(props) {
     try {
       const res = await adminApi.layDsLopTCSVDK(payload);
       if (res.data) {
+        setDsDaDk(res.data);
         setDsLopTCDK(res.data);
+      }
+    } catch (error) {
+      toast.error(error, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  };
+
+  const dangKyLopTC = async (list) => {
+    const payload = {
+      ...dbConfig,
+      dsDangKy: list ?? [],
+    };
+    try {
+      const res = await adminApi.dangKyLopTC(payload);
+      if (res.data) {
+        setISCallData(true);
+        setRefresh(!refresh);
+        toast.success("Đã lưu đăng ký vào CSDL", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       }
     } catch (error) {
       toast.error(error, {
@@ -86,6 +127,22 @@ export default function TableDetail(props) {
     index: null,
   });
 
+  const formatListPayload = (list) => {
+    let a = [];
+    list.forEach((e) => {
+      a.push({
+        MALTC: e.MALTC,
+        MASV: userLogin.MASV,
+        DIEM_CC: null,
+        DIEM_GK: null,
+        DIEM_CK: null,
+        HUYDANGKY: e.HUYDANGKY ?? false,
+      });
+    });
+
+    return a;
+  };
+
   // const [showEditForm, setShowEditForm] = useState({
   //   model: {},
   //   show: false,
@@ -93,8 +150,11 @@ export default function TableDetail(props) {
   // });
   const [refreshEditForm, setRefreshEditForm] = useState(false);
   useEffect(() => {
-    filters.nienKhoa !== null && filters.hocKy !== null && layDsLopTCSvDk();
-  }, [filters, currentPage, currentPageSize]);
+    isCallData &&
+      filters.nienKhoa !== null &&
+      filters.hocKy !== null &&
+      layDsLopTCSvDk();
+  }, [filters, currentPage, currentPageSize, refresh]);
   useEffect(() => {
     setShowEditForm({
       model: {},
@@ -105,6 +165,17 @@ export default function TableDetail(props) {
 
   return (
     <div>
+      <div style={{ textAlign: "right" }}>
+        <button
+          className="buttonLogic"
+          style={{ float: "none" }}
+          onClick={() => {
+            dangKyLopTC(formatListPayload(dsDaDk));
+          }}
+        >
+          Ghi thông tin về CSDL
+        </button>
+      </div>
       <div
         style={{
           textAlign: "center",
@@ -113,8 +184,12 @@ export default function TableDetail(props) {
       >
         <label>Danh sách Lớp tín chỉ đã đang ký</label>
       </div>
+
       <div>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <table
+          key={[dsDaDk?.length, refresh]}
+          style={{ width: "100%", borderCollapse: "collapse" }}
+        >
           <tr
             style={{
               backgroundColor: "rgb(114, 152, 185)",
@@ -129,10 +204,10 @@ export default function TableDetail(props) {
             <td>Giảng viên</td>
           </tr>
 
-          {dsLopTCDK?.map((x, index) => (
+          {dsDaDk?.map((x, index) => (
             <tr
               onClick={() => {
-                dsLopTCDK?.forEach((e, i) => {
+                dsDaDk?.forEach((e, i) => {
                   if (i !== index)
                     document
                       .getElementById(`lopTCSVDK_${i}`)
@@ -144,7 +219,7 @@ export default function TableDetail(props) {
                 setSelectRow(index);
               }}
               id={`lopTCSVDK_${index}`}
-              className={selectedRow === index ? rowClass : ""}
+              // className={selectedRow === index ? rowClass : ""}
               key={`lopTCSVDK_${x.MALOP}`}
             >
               <td

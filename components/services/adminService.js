@@ -46,4 +46,7 @@ export const adminApi = {
   async layDsLopTCSVDK(data) {
     return await axiosClient.post(`dsLopTCSVDK`, data);
   },
+  async dangKyLopTC(data) {
+    return await axiosClient.post(`dangKyLopTC`, data);
+  },
 };

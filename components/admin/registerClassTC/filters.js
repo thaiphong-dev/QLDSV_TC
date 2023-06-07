@@ -4,7 +4,7 @@ import { adminApi } from "../../services/adminService";
 import { toast } from "react-toastify";
 
 export default function Filters(props) {
-  const { filters, setFilters, filtersRef, setRefresh } = props;
+  const { filters, setFilters, filtersRef, setRefresh, setISCallData } = props;
   const filtersData = filters;
 
   const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
@@ -113,6 +113,7 @@ export default function Filters(props) {
               onClick={() => {
                 setFilters(filtersData);
                 setRefresh(Math.random());
+                setISCallData(true);
               }}
             >
               Tìm

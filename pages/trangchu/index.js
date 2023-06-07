@@ -70,7 +70,7 @@ export default function Main() {
                 <label style={{ marginRight: "2rem" }}>Mã: </label>
                 <input
                   disabled
-                  defaultValue={userLogin.MAGV}
+                  defaultValue={userLogin.MAGV ?? userLogin.MASV}
                   style={customInputStyle}
                 ></input>
               </div>
@@ -100,7 +100,7 @@ export default function Main() {
                 <label style={{ marginRight: "2rem" }}>Nhóm: </label>
                 <input
                   disabled
-                  defaultValue={userLogin.ROLENAME}
+                  defaultValue={userLogin.MASV ? "SV" : userLogin.ROLENAME}
                   style={customInputStyle}
                 ></input>
               </div>

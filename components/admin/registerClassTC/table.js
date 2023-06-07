@@ -7,11 +7,58 @@ import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 export default function Table(props) {
   const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
 
-  const { filters, setShowEditForm } = props;
+  const {
+    filters,
+    setShowEditForm,
+    setDsDaDk,
+    dsDaDk,
+    setRefreshDetail,
+    setISCallData,
+  } = props;
   const rowClass = "rowSelected";
 
   const dsKhoa = JSON.parse(localStorage.getItem("dsPhanManh")).slice(0, 2);
+  // check trùng đăng kí lớp tc
+  const kiemTraTrungLop = (row) => {
+    console.log("data vào", row);
+    console.log("data cũ", dsDaDk);
+    let flag = true;
+    for (let i = 0; i < dsDaDk?.length; i++) {
+      if (
+        dsDaDk[i]?.MALTC === row?.MALTC &&
+        dsDaDk[i]?.NIENKHOA === row?.NIENKHOA &&
+        dsDaDk[i]?.HOCKY === row?.HOCKY &&
+        dsDaDk[i]?.NHOM === row?.NHOM
+      ) {
+        console.log("sai");
+        toast.error("Lớp tin chỉ đã được đăng kí", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        flag = false;
+        break;
+      }
+    }
+    if (flag) {
+      let list = dsDaDk;
+      let data = {
+        ...row,
+        COTHEHUY: 1,
+      };
+      list.push(data);
 
+      console.log("ds mới", list);
+      setDsDaDk(list);
+      setRefreshDetail(Math.random());
+      setISCallData(false);
+    }
+  };
   // login phân trang
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageSize, setCurrentPageSize] = useState(5);
@@ -136,7 +183,7 @@ export default function Table(props) {
                 setSelectRow(index);
               }}
               id={`lopTCDK_${index}`}
-              className={selectedRow === index ? rowClass : ""}
+              // className={selectedRow === index ? rowClass : ""}
               key={`lopTCDK_${x.MALOP}`}
             >
               <td
@@ -175,7 +222,12 @@ export default function Table(props) {
                           zIndex: "100",
                         }}
                       >
-                        <button className="buttonCustom">Đăng ký</button>
+                        <button
+                          onClick={() => kiemTraTrungLop(x)}
+                          className="buttonCustom"
+                        >
+                          Đăng ký
+                        </button>
                       </div>
                     )}
                 </div>
