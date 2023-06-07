@@ -1,16 +1,26 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { adminApi } from "../../services/adminService";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 
 export default function Table(props) {
-  const { filters, filtersRefs, setShowEditForm, refreshTable } = props;
-  console.log("calllsdlasdla", filters);
+  const {
+    filters,
+    filtersRefs,
+    setShowEditForm,
+    refreshTable,
+    modelChange,
+    setModelChange,
+    currentDetail,
+    setCurrentDetail,
+    refreshChangeDetail,
+  } = props;
+  const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
 
   const rowClass = "rowSelected";
   const [detail, setDetail] = useState([]);
-
+  const detailRef = useRef();
   // lay ds điểm sv
   const layDsDiemSv = async () => {
     const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
@@ -23,7 +33,9 @@ export default function Table(props) {
     try {
       const res = await adminApi.layDsDiemSv(payload);
       if (res.data) {
+        setCurrentDetail(res.data);
         setDetail(res.data);
+        detailRef.current(res.data);
       }
     } catch (error) {
       toast.error(error, {
@@ -66,14 +78,14 @@ export default function Table(props) {
     else prevbtn.disabled = false;
 
     let nextbtn = document.getElementById("scores_next-btn");
-    if (detail?.length < currentPageSize) nextbtn.disabled = true;
+    if (currentDetail?.length < currentPageSize) nextbtn.disabled = true;
     else nextbtn.disabled = false;
-  }, [refreshTable, currentPage, detail?.length]);
+  }, [refreshTable, currentPage, detail?.length, currentDetail?.length]);
 
   //
 
   const [selectedRow, setSelectRow] = useState(0);
-
+  const [refreshData, setRefreshData] = useState(false);
   const [showActionButton, setShowActionButton] = useState({
     model: {},
     show: false,
@@ -91,18 +103,74 @@ export default function Table(props) {
   }, [refreshEditForm]);
   useEffect(() => {
     {
-      filters.nienKhoa !== null &&
+      !modelChange &&
+        filters.nienKhoa !== null &&
         filters.hocKy !== null &&
         filters.nhom !== null &&
         filters.monHoc !== null &&
         layDsDiemSv();
     }
-  }, [filters, currentPage, currentPageSize]);
+  }, [filters, currentPage, currentPageSize, refreshData]);
+
+  useEffect(() => {
+    let data = currentDetail;
+
+    if (modelChange) {
+      for (let i = 0; i < data.length; i++) {
+        if (
+          data[i].MALTC == modelChange.MALTC &&
+          data[i].MASV == modelChange.MASV
+        ) {
+          data[i].DIEM_CC = modelChange.DIEM_CC;
+          data[i].DIEM_GK = modelChange.DIEM_GK;
+          data[i].DIEM_CK = modelChange.DIEM_CK;
+          data[i].DIEM_TK = modelChange.DIEM_TK;
+          setCurrentDetail(data);
+        }
+      }
+    }
+  }, [modelChange, currentDetail]);
+
+  const ghiDiemSV = async (list) => {
+    const payload = {
+      ...dbConfig,
+      dsDiem: list ?? [],
+    };
+    try {
+      const res = await adminApi.ghiDiemSV(payload);
+      if (res.data) {
+        setRefreshData(!refreshData);
+        setModelChange(undefined);
+        toast.success("Đã lưu điểm vào CSDL", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      }
+    } catch (error) {
+      toast.error(error, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  };
 
   return (
     <div>
       <div>
         <table
+          key={refreshChangeDetail}
           style={{
             width: "100%",
             borderCollapse: "collapse",
@@ -124,10 +192,10 @@ export default function Table(props) {
             <td>Điểm tổng kết</td>
           </tr>
 
-          {detail?.map((x, index) => (
+          {currentDetail?.map((x, index) => (
             <tr
               onClick={() => {
-                detail?.forEach((e, i) => {
+                currentDetail?.forEach((e, i) => {
                   if (i !== index)
                     document
                       .getElementById(`diemSv_${i}`)
@@ -252,6 +320,18 @@ export default function Table(props) {
             Tiếp
           </button>
         </div>
+      </div>
+      <div style={{ textAlign: "right", marginTop: "1rem" }}>
+        <button
+          className="buttonLogic"
+          style={{ float: "none" }}
+          onClick={() => {
+            ghiDiemSV(currentDetail);
+            console.log("current", currentDetail);
+          }}
+        >
+          Ghi thông tin về CSDL
+        </button>
       </div>
     </div>
   );

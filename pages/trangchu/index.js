@@ -23,6 +23,8 @@ export default function Main() {
   ];
 
   const listMenuSV = [{ label: "Quản Trị", value: "admin" }];
+
+  const listMenuPKT = [{ label: "Quản Trị", value: "admin" }];
   const isSV = JSON.parse(localStorage.getItem("isSV"));
 
   const [currentMenuValue, setCurrentMenuValue] = useState(
@@ -41,7 +43,11 @@ export default function Main() {
       >
         <MainMenu
           keyMenu="level1"
-          listMenu={isSV ? listMenuSV : listMenu}
+          listMenu={
+            isSV
+              ? listMenuSV
+              : (userLogin.ROLENAME = "PKT" ? listMenuPKT : listMenu)
+          }
           levelMenu="menuLevel1"
           itemLevel="itemLevel1"
           activeClass="itemLevel1_active"

@@ -1,19 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ReactModal from "react-modal";
 import Select from "react-select";
 import { adminApi } from "../../services/adminService";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 export default function ScoreDetail(props) {
-  console.log("sadsada", props);
   const {
     model,
-
     refreshTable,
     setRefreshTable,
     setShowEditForm,
+    setModelChange,
+    modelChange,
+    setRefreshChangeDetail,
+    refreshChangeDetail,
   } = props;
 
+  const [detail, setDetail] = useState(model?.model);
+  const timeOutRef = useRef(null);
   const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
   const {
     register,
@@ -26,20 +30,28 @@ export default function ScoreDetail(props) {
 
   const onSubmit = async (data) => {
     const payload = {
-      ...dbConfig,
-      maLop: model.model.MALTC,
-      maSv: model.model.MASV,
-      diemCc: parseFloat(data.diemCc),
-      diemGk: parseFloat(data.diemGk),
-      diemCk: parseFloat(data.diemCk),
+      MALTC: model.model?.MALTC,
+      MASV: model.model?.MASV,
+      HOTEN: model.model?.HOTEN,
+      DIEM_CC: parseFloat(data.diemCc),
+      DIEM_GK: parseFloat(data.diemGk),
+      DIEM_CK: parseFloat(data.diemCk),
+      DIEM_TK: parseFloat(data.diemTk),
     };
     // taoLopTC(payload);
-    console.log("payload", payload);
+    setModelChange(payload);
+    setRefreshChangeDetail(!refreshChangeDetail);
+    setShowEditForm({
+      model: {},
+      show: false,
+      index: null,
+    });
   };
 
   const formatValue = (num) => {
-    console.log("call", num);
-    return (Math.floor(parseFloat(num) * 2) / 2).toFixed(1);
+    return !isNaN(parseFloat(num))
+      ? (Math.floor(parseFloat(num) * 2) / 2).toFixed(1)
+      : 0;
   };
 
   const customStyles = {
@@ -52,22 +64,74 @@ export default function ScoreDetail(props) {
     },
   };
 
-  // useEffect(() => {
-  //   let diemCc = watch("diemCc");
-  //   console.log("diemcc", diemCc);
-  //   setTimeout(() => {
-  //     setValue("diemCc", formatValue(diemCc));
-  //   }, 1000);
-  // }, [watch("diemCc")]);
+  useEffect(() => {
+    let diemCc = watch("diemCc");
+    if (diemCc) {
+      if (timeOutRef.current) {
+        clearTimeout(timeOutRef.current);
+      }
+      timeOutRef.current = setTimeout(() => {
+        setValue("diemCc", formatValue(diemCc));
+      }, 1000);
+    }
+  }, [watch("diemCc")]);
+
+  useEffect(() => {
+    let diemGk = watch("diemGk");
+    if (diemGk) {
+      if (timeOutRef.current) {
+        clearTimeout(timeOutRef.current);
+      }
+      timeOutRef.current = setTimeout(() => {
+        setValue("diemGk", formatValue(diemGk));
+      }, 1000);
+    }
+  }, [watch("diemGk")]);
+
+  useEffect(() => {
+    let diemCk = watch("diemCk");
+    if (diemCk) {
+      if (timeOutRef.current) {
+        clearTimeout(timeOutRef.current);
+      }
+      timeOutRef.current = setTimeout(() => {
+        setValue("diemCk", formatValue(diemCk));
+      }, 1000);
+    }
+  }, [watch("diemCk")]);
+
+  useEffect(() => {
+    let diemCc = watch("diemCc");
+    let diemGk = watch("diemGk");
+    let diemCk = watch("diemCk");
+
+    if (
+      diemCc !== null &&
+      diemCc > 0 &&
+      diemGk !== null &&
+      diemGk > 0 &&
+      diemCk !== null &&
+      diemCk > 0
+    ) {
+      setValue(
+        "diemTk",
+        formatValue(
+          parseFloat(diemCc) * 0.1 +
+            parseFloat(diemGk) * 0.3 +
+            parseFloat(diemCk) * 0.6
+        )
+      );
+    } else setValue("diemTK", 0);
+  }, [watch("diemCc"), watch("diemGk"), watch("diemCk")]);
 
   return (
     <ReactModal
       isOpen={model.show}
-      contentLabel="Thông tin lớp"
+      contentLabel="Điểm sinh viên"
       style={customStyles}
     >
       <div>
-        <h3>{model.model.className}</h3>
+        <h3>{model.model?.className}</h3>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div>
             <label>Mã lớp</label>
@@ -75,7 +139,7 @@ export default function ScoreDetail(props) {
               disabled
               {...register("maLop")}
               style={{ width: "100%" }}
-              defaultValue={model.model.MALTC}
+              defaultValue={model.model?.MALTC}
             ></input>
           </div>
           <div>
@@ -84,7 +148,7 @@ export default function ScoreDetail(props) {
               disabled
               {...register("maSv")}
               style={{ width: "100%" }}
-              defaultValue={model.model.MASV}
+              defaultValue={model.model?.MASV}
             ></input>
           </div>
           <div>
@@ -93,24 +157,19 @@ export default function ScoreDetail(props) {
               disabled
               {...register("hoTen")}
               style={{ width: "100%" }}
-              defaultValue={model.model.HOTEN}
+              defaultValue={model.model?.HOTEN}
             ></input>
           </div>
           <div>
             <label>Điểm chuyên cần</label>
             <input
               type="number"
-              step=".1"
               min={0}
               max={10}
-              // onChange={(e) => {
-              //   console.log("change", e.target.value);
-              //   setValue("diemCc", formatValue(e.target.value));
-              // }}
               {...register("diemCc")}
               style={{ width: "100%" }}
               defaultValue={
-                (Math.floor(parseFloat(model.model.DIEM_CK) * 2) / 2).toFixed(
+                (Math.floor(parseFloat(model.model?.DIEM_CC) * 2) / 2).toFixed(
                   1
                 ) ?? null
               }
@@ -127,7 +186,7 @@ export default function ScoreDetail(props) {
               {...register("diemGk")}
               style={{ width: "100%" }}
               defaultValue={
-                (Math.floor(parseFloat(model.model.DIEM_GK) * 2) / 2).toFixed(
+                (Math.floor(parseFloat(model.model?.DIEM_GK) * 2) / 2).toFixed(
                   1
                 ) ?? null
               }
@@ -144,7 +203,7 @@ export default function ScoreDetail(props) {
               {...register("diemCk")}
               style={{ width: "100%" }}
               defaultValue={
-                (Math.floor(parseFloat(model.model.DIEM_CK) * 2) / 2).toFixed(
+                (Math.floor(parseFloat(model.model?.DIEM_CK) * 2) / 2).toFixed(
                   1
                 ) ?? null
               }
@@ -162,7 +221,7 @@ export default function ScoreDetail(props) {
               {...register("diemTk")}
               style={{ width: "100%" }}
               defaultValue={
-                (Math.floor(parseFloat(model.model.DIEM_TK) * 2) / 2).toFixed(
+                (Math.floor(parseFloat(model.model?.DIEM_TK) * 2) / 2).toFixed(
                   1
                 ) ?? null
               }

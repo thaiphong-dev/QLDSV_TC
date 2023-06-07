@@ -10,6 +10,7 @@ import Tution from "./tuition";
 
 export default function Admin() {
   const isSV = JSON.parse(localStorage.getItem("isSV"));
+  const userLogin = JSON.parse(localStorage.getItem("userLogin"));
 
   const listMenu = [
     { label: "Lớp", value: "class" },
@@ -24,6 +25,8 @@ export default function Admin() {
   const listMenuSV = [
     { label: "Đăng kí Lớp tín chỉ", value: "registerClassTC" },
   ];
+
+  const listMenuPKT = [{ label: "Học phí", value: "tuition" }];
 
   const [currentMenu, setCurrentMenu] = useState(
     isSV ? "registerClassTC" : "class"
@@ -43,7 +46,11 @@ export default function Admin() {
     <div key={currentMenuValue}>
       <MainMenu
         keyMenu="level2"
-        listMenu={isSV ? listMenuSV : listMenu}
+        listMenu={
+          isSV
+            ? listMenuSV
+            : (userLogin.ROLENAME = "PKT" ? listMenuPKT : listMenu)
+        }
         levelMenu="menuLevel2"
         itemLevel="itemLevel2"
         activeClass="itemLevel2_active"

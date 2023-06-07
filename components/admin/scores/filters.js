@@ -9,7 +9,14 @@ export default function Filters(props) {
   );
   const dsKhoas = JSON.parse(localStorage.getItem("dsPhanManh")).slice(0, 2);
 
-  const { filters, setFilters, filtersRef, setRefresh } = props;
+  const {
+    filters,
+    setFilters,
+    filtersRef,
+    setRefresh,
+    modelChange,
+    setModelChange,
+  } = props;
 
   const filtersData = filters;
 
@@ -244,7 +251,7 @@ export default function Filters(props) {
       <div style={{ textAlign: "center", margin: "2rem 0" }}>
         <button
           onClick={() => {
-            console.log("fafsafa", filters);
+            setModelChange(undefined);
             setFilters(filtersData);
             setRefresh(Math.random());
           }}

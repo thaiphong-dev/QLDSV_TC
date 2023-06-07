@@ -49,4 +49,7 @@ export const adminApi = {
   async dangKyLopTC(data) {
     return await axiosClient.post(`dangKyLopTC`, data);
   },
+  async ghiDiemSV(data) {
+    return await axiosClient.post(`ghiDiemSV`, data);
+  },
 };

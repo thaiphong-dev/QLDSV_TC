@@ -83,7 +83,9 @@ function Login() {
 
         const menu = {
           parentMenu: "admin",
-          secondMenu: isSV ? "registerClassTC" : "class",
+          secondMenu: isSV
+            ? "registerClassTC"
+            : (res.data.ROLENAME = "PKT" ? "tuition" : "class"),
         };
 
         localStorage.setItem("menu", JSON.stringify(menu));
@@ -177,7 +179,6 @@ function Login() {
                     type="checkbox"
                     onChange={(e) => {
                       setIsSV(e.target.checked);
-                      console.log("eee", e.target.checked);
                     }}
                   ></input>
                   <label for="SV">Sinh viên</label>

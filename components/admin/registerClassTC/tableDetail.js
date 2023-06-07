@@ -60,7 +60,7 @@ export default function TableDetail(props) {
     const payload = {
       ...dbConfig,
       ...filters,
-      maSv: "N15DCCN001",
+      maSv: userLogin.MASV,
       pageSize: currentPageSize,
       pageNumber: currentPage,
     };
