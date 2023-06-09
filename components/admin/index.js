@@ -18,8 +18,6 @@ export default function Admin() {
     { label: "Lớp tín chỉ", value: "classTC" },
     { label: "Sinh viên", value: "student" },
     { label: "Điểm", value: "scores" },
-    { label: "Đăng kí", value: "registerClassTC" },
-    { label: "Học phí", value: "tuition" },
   ];
 
   const listMenuSV = [
@@ -49,7 +47,9 @@ export default function Admin() {
         listMenu={
           isSV
             ? listMenuSV
-            : (userLogin.ROLENAME = "PKT" ? listMenuPKT : listMenu)
+            : userLogin.ROLENAME === "PKT"
+            ? listMenuPKT
+            : listMenu
         }
         levelMenu="menuLevel2"
         itemLevel="itemLevel2"

@@ -63,4 +63,7 @@ export const adminApi = {
   async layCTHocPhi(data) {
     return await axiosClient.post(`layCTHocPhi`, data);
   },
+  async dongHocPhi(data) {
+    return await axiosClient.post(`dongHocPhi`, data);
+  },
 };

@@ -3,7 +3,7 @@ import Select from "react-select";
 import Table from "./table";
 import TableDetail from "./tableDetail";
 import { adminApi } from "../../services/adminService";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function Filters() {
   const customInputStyle = {
@@ -20,7 +20,7 @@ export default function Filters() {
 
   const [SVInfo, setSVInfo] = useState();
   // lấy ds học phí
-  const layDsHocPhi = async () => {
+  const laySinhVien = async () => {
     const payload = {
       ...dbConfig,
       MASV: maSV,
@@ -43,9 +43,49 @@ export default function Filters() {
       });
     }
   };
+
+  const dongHocPhi = async (dsHocPhi, dsCTHocPhi) => {
+    const payload = {
+      ...dbConfig,
+      dsHocPhi: dsHocPhi ?? [],
+      dsCTHocPhi: dsCTHocPhi ?? [],
+    };
+    try {
+      const res = await adminApi.dongHocPhi(payload);
+      if (res.data) {
+        toast.success("Đã lưu học phí vào CSDL", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      }
+    } catch (error) {
+      toast.error(error, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  };
   const [refreshFilter, setRefreshFilter] = useState(false);
   const [hocPhi, setHocPhi] = useState();
   const [refreshCtHocPhi, setRefreshCtHocPhi] = useState();
+
+  const [currentDsHocPhi, setCurrentDsHocPhi] = useState([]);
+  const [currentNopHocPhi, setCurrentNopHocPhi] = useState([]);
+  const [refreshTableHP, setRefreshTableHP] = useState(false);
+  const [refreshTableCT, setRefreshTableCT] = useState(false);
+
   return (
     <>
       <div style={{ backgroundColor: "#c2bdbd", position: "relative" }}>
@@ -117,7 +157,8 @@ export default function Filters() {
                 }}
                 onClick={() => {
                   setRefreshFilter(!refreshFilter);
-                  layDsHocPhi();
+                  setHocPhi();
+                  laySinhVien();
                 }}
               >
                 Tìm
@@ -144,6 +185,10 @@ export default function Filters() {
       <div key={refreshFilter}>
         <div style={{ marginBottom: "2rem" }}>
           <Table
+            refreshTableHP={refreshTableHP}
+            setRefreshTableHP={setRefreshTableHP}
+            setCurrentDsHocPhi={setCurrentDsHocPhi}
+            currentDsHocPhi={currentDsHocPhi}
             refreshCtHocPhi={refreshCtHocPhi}
             setRefreshCtHocPhi={setRefreshCtHocPhi}
             setHocPhi={setHocPhi}
@@ -151,9 +196,50 @@ export default function Filters() {
           />
         </div>
         <div key={refreshCtHocPhi}>
-          <TableDetail hocPhi={hocPhi} SVInfo={SVInfo} />
+          <TableDetail
+            refreshTableHP={refreshTableHP}
+            setRefreshTableHP={setRefreshTableHP}
+            refreshTableCT={refreshTableCT}
+            setRefreshTableCT={setRefreshTableCT}
+            setCurrentDsHocPhi={setCurrentDsHocPhi}
+            currentDsHocPhi={currentDsHocPhi}
+            currentNopHocPhi={currentNopHocPhi}
+            setCurrentNopHocPhi={setCurrentNopHocPhi}
+            hocPhi={hocPhi}
+            SVInfo={SVInfo}
+          />
+        </div>
+
+        <div style={{ textAlign: "right", marginTop: "1rem" }}>
+          <button
+            className="buttonLogic"
+            style={{ float: "none" }}
+            onClick={() => {
+              // ghiDiemSV(currentDetail);
+              let list = [];
+              for (let i = 0; i < currentDsHocPhi.length; i++) {
+                currentDsHocPhi[i]?.CTHocPhi?.forEach((e) => {
+                  if (!e.CSDL)
+                    list.push({
+                      MASV: currentDsHocPhi[i].MASV,
+                      NIENKHOA: currentDsHocPhi[i].NIENKHOA,
+                      HOCKY: currentDsHocPhi[i].HOCKY,
+                      NGAYDONG: e.NGAYDONG,
+                      SOTIENDONG: e.SOTIENDONG,
+                    });
+                });
+              }
+              dongHocPhi(
+                currentDsHocPhi?.filter((x) => !x.CSDL),
+                list
+              );
+            }}
+          >
+            Ghi thông tin về CSDL
+          </button>
         </div>
       </div>
+      <ToastContainer />
     </>
   );
 }

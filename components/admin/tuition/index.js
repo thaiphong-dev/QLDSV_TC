@@ -10,8 +10,6 @@ export default function Tution() {
   return (
     <div>
       <Filters />
-
-      <ToastContainer />
     </div>
   );
 }

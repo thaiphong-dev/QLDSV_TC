@@ -165,17 +165,6 @@ export default function TableDetail(props) {
 
   return (
     <div>
-      <div style={{ textAlign: "right" }}>
-        <button
-          className="buttonLogic"
-          style={{ float: "none" }}
-          onClick={() => {
-            dangKyLopTC(formatListPayload(dsDaDk));
-          }}
-        >
-          Ghi thông tin về CSDL
-        </button>
-      </div>
       <div
         style={{
           textAlign: "center",
@@ -308,6 +297,17 @@ export default function TableDetail(props) {
             Tiếp
           </button>
         </div>
+      </div>
+      <div style={{ textAlign: "right" }}>
+        <button
+          className="buttonLogic"
+          style={{ float: "none" }}
+          onClick={() => {
+            dangKyLopTC(formatListPayload(dsDaDk));
+          }}
+        >
+          Ghi thông tin về CSDL
+        </button>
       </div>
     </div>
   );

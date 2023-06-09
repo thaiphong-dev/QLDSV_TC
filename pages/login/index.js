@@ -19,11 +19,9 @@ function Login() {
         label: x.TENCN,
         value: x.TENSERVER,
       }));
-      console.log("res", list);
 
       return list;
     } catch (error) {
-      console.log("error", error);
       return [];
     }
   };
@@ -56,8 +54,6 @@ function Login() {
       user: isSV ? "TTP" : currentTk.current,
       password: isSV ? "123" : currentMk.current,
     };
-    console.log("payload", commonPayload);
-    console.log("isSV", isSV);
 
     try {
       const res = isSV
@@ -85,7 +81,9 @@ function Login() {
           parentMenu: "admin",
           secondMenu: isSV
             ? "registerClassTC"
-            : (res.data.ROLENAME = "PKT" ? "tuition" : "class"),
+            : res.data.ROLENAME === "PKT"
+            ? "tuition"
+            : "class",
         };
 
         localStorage.setItem("menu", JSON.stringify(menu));
@@ -93,7 +91,6 @@ function Login() {
         router.push("/trangchu");
       }
     } catch (error) {
-      console.log("error", error);
       toast.error("Tài Khoản hoặc mật khẩu không đúng!", {
         position: "top-right",
         autoClose: 5000,

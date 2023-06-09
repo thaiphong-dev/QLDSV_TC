@@ -46,7 +46,9 @@ export default function Main() {
           listMenu={
             isSV
               ? listMenuSV
-              : (userLogin.ROLENAME = "PKT" ? listMenuPKT : listMenu)
+              : userLogin.ROLENAME === "PKT"
+              ? listMenuPKT
+              : listMenu
           }
           levelMenu="menuLevel1"
           itemLevel="itemLevel1"
