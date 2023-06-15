@@ -1,5 +1,9 @@
 import React from "react";
 import axiosClient from "../../axios/axiosClient";
+import axios from "axios";
+import { saveAs } from "file-saver";
+
+let baseURL = "http://localhost:8080/";
 
 export const adminApi = {
   async dangNhap(data) {
@@ -65,5 +69,27 @@ export const adminApi = {
   },
   async dongHocPhi(data) {
     return await axiosClient.post(`dongHocPhi`, data);
+  },
+
+  async inDsLopTC(data) {
+    return await axios
+      .post(`${baseURL}taoDsLopTC`, data)
+      .then(() => axios.get(`${baseURL}inDsLopTC`, { responseType: "blob" }))
+      .then((res) => {
+        const pdfBlob = new Blob([res.data], { type: "application/pdf" });
+        saveAs(pdfBlob, "dsLopTC.pdf");
+      });
+  },
+
+  async inDsSVDKLopTC(data) {
+    return await axios
+      .post(`${baseURL}taoDsSVDKLopTC`, data)
+      .then(() =>
+        axios.get(`${baseURL}inDsSVDKLopTC`, { responseType: "blob" })
+      )
+      .then((res) => {
+        const pdfBlob = new Blob([res.data], { type: "application/pdf" });
+        saveAs(pdfBlob, "dsSVDKLopTC.pdf");
+      });
   },
 };

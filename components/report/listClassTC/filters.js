@@ -4,6 +4,8 @@ import { adminApi } from "../../services/adminService";
 import { toast } from "react-toastify";
 
 export default function Filters(props) {
+  const userLogin = JSON.parse(localStorage.getItem("userLogin"));
+
   const [currentCN, setCurrentCN] = useState(
     JSON.parse(localStorage.getItem("currentCN"))
   );
@@ -38,6 +40,34 @@ export default function Filters(props) {
           value: x.MAKHOA.trim(),
         }));
         setdsKhoa(dsKhoaOptions);
+      }
+    } catch (error) {
+      toast.error(error, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  };
+
+  // In danh sách lớp tín chỉ
+  const inDsLopTC = async (data) => {
+    const payload = {
+      chiNhanh: currentCN.value,
+      password: dbConfig.password,
+      user: dbConfig.user,
+      NIENKHOA: data.nienKhoa,
+      HOCKY: data.hocKy,
+      USER: userLogin.HOTEN,
+    };
+    try {
+      const res = await adminApi.inDsLopTC(payload);
+      if (res) {
       }
     } catch (error) {
       toast.error(error, {
@@ -129,8 +159,6 @@ export default function Filters(props) {
   };
 
   useEffect(() => {
-    layDsKhoa();
-    layDsMonHoc();
     layDsFilter();
   }, [currentCN]);
 
@@ -217,7 +245,7 @@ export default function Filters(props) {
         <button
           onClick={() => {
             setFilters(filtersData);
-            console.log("filtersData", filtersData);
+            inDsLopTC(filtersData);
           }}
           className="buttonLogic"
           style={{ float: "none", marginRight: "2rem" }}

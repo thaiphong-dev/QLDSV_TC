@@ -8,6 +8,7 @@ export default function Filters(props) {
     JSON.parse(localStorage.getItem("currentCN"))
   );
   const dsKhoas = JSON.parse(localStorage.getItem("dsPhanManh")).slice(0, 2);
+  const userLogin = JSON.parse(localStorage.getItem("userLogin"));
 
   const {
     filters,
@@ -21,6 +22,37 @@ export default function Filters(props) {
   const filtersData = filters;
 
   const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
+
+  // In danh sách lớp tín chỉ
+  const inDsSVDKLopTC = async (data) => {
+    const payload = {
+      chiNhanh: currentCN.value,
+      password: dbConfig.password,
+      user: dbConfig.user,
+      NIENKHOA: data.nienKhoa,
+      HOCKY: data.hocKy,
+      NHOM: data.nhom,
+      MONHOC: data.monHoc,
+      TENMH: data.tenMH,
+      USER: userLogin.HOTEN,
+    };
+    try {
+      const res = await adminApi.inDsSVDKLopTC(payload);
+      if (res) {
+      }
+    } catch (error) {
+      toast.error(error, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  };
 
   const [dsKhoa, setdsKhoa] = useState();
   // lấy ds Khoa
@@ -237,6 +269,7 @@ export default function Filters(props) {
                   onChange={(e) => {
                     filtersRef.current.monHoc = e.value;
                     filtersData.monHoc = e.value?.trim();
+                    filtersData.tenMH = e.label?.trim();
                   }}
                   options={dsMonHoc}
                 ></Select>
@@ -250,7 +283,7 @@ export default function Filters(props) {
         <button
           onClick={() => {
             setFilters(filtersData);
-            console.log("filtersData", filtersData);
+            inDsSVDKLopTC(filtersData);
           }}
           className="buttonLogic"
           style={{ float: "none", marginRight: "2rem" }}
