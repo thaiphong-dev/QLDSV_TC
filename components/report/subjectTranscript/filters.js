@@ -21,7 +21,38 @@ export default function Filters(props) {
   const filtersData = filters;
 
   const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
+  const userLogin = JSON.parse(localStorage.getItem("userLogin"));
 
+  // In bảng điểm môn học
+  const inDiemLopTC = async (data) => {
+    const payload = {
+      chiNhanh: currentCN.value,
+      password: dbConfig.password,
+      user: dbConfig.user,
+      NIENKHOA: data.nienKhoa,
+      HOCKY: data.hocKy,
+      NHOM: data.nhom,
+      MONHOC: data.monHoc,
+      TENMH: data.tenMH,
+      USER: userLogin.HOTEN,
+    };
+    try {
+      const res = await adminApi.inDiemLopTC(payload);
+      if (res) {
+      }
+    } catch (error) {
+      toast.error(error, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  };
   const [dsKhoa, setdsKhoa] = useState();
   // lấy ds Khoa
   const layDsKhoa = async () => {
@@ -237,6 +268,7 @@ export default function Filters(props) {
                   onChange={(e) => {
                     filtersRef.current.monHoc = e.value;
                     filtersData.monHoc = e.value?.trim();
+                    filtersData.tenMH = e.label?.trim();
                   }}
                   options={dsMonHoc}
                 ></Select>
@@ -250,7 +282,7 @@ export default function Filters(props) {
         <button
           onClick={() => {
             setFilters(filtersData);
-            console.log("filtersData", filtersData);
+            inDiemLopTC(filtersData);
           }}
           className="buttonLogic"
           style={{ float: "none", marginRight: "2rem" }}

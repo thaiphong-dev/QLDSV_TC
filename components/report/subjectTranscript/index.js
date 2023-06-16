@@ -9,6 +9,7 @@ export default function SubjectTranscript() {
     hocKy: null,
     nhom: null,
     monHoc: null,
+    tenMH: null,
   });
 
   const filtersRef = useRef({
@@ -16,6 +17,7 @@ export default function SubjectTranscript() {
     hocKy: null,
     nhom: null,
     monHoc: null,
+    tenMH: null,
   });
 
   const [refresh, setRefresh] = useState(1);

@@ -7,8 +7,39 @@ export default function Filters(props) {
   const [currentCN, setCurrentCN] = useState(
     JSON.parse(localStorage.getItem("currentCN"))
   );
-  const dsKhoas = JSON.parse(localStorage.getItem("dsPhanManh")).slice(0, 2);
+  const userLogin = JSON.parse(localStorage.getItem("userLogin"));
 
+  const [lop, setLop] = useState();
+  const dsKhoas = JSON.parse(localStorage.getItem("dsPhanManh")).slice(0, 2);
+  // In học phí của lớp
+  const inHocPhiLop = async (data, lop) => {
+    const payload = {
+      chiNhanh: currentCN.value,
+      password: dbConfig.password,
+      user: dbConfig.user,
+      NIENKHOA: data.nienKhoa,
+      HOCKY: data.hocKy,
+      MALOP: lop.value,
+      TENLOP: lop.label,
+      USER: userLogin.HOTEN,
+    };
+    try {
+      const res = await adminApi.inHocPhiLop(payload);
+      if (res) {
+      }
+    } catch (error) {
+      toast.error(error, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  };
   const {
     filters,
     setFilters,
@@ -21,23 +52,26 @@ export default function Filters(props) {
   const filtersData = filters;
 
   const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
+  const [dsLop, setDsLop] = useState();
 
-  const [dsKhoa, setdsKhoa] = useState();
-  // lấy ds Khoa
-  const layDsKhoa = async () => {
+  const layDsLop = async () => {
+    const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
     const payload = {
       chiNhanh: currentCN.value,
       password: dbConfig.password,
       user: dbConfig.user,
+      pageSize: 1000,
+      pageNumber: 1,
     };
     try {
-      const res = await adminApi.layDsKhoa(payload);
+      const res = await adminApi.layDsLop(payload);
       if (res.data) {
-        const dsKhoaOptions = Array.from(new Set(res.data))?.map((x) => ({
-          label: x.TENKHOA.trim(),
-          value: x.MAKHOA.trim(),
-        }));
-        setdsKhoa(dsKhoaOptions);
+        setDsLop(
+          res.data?.map((x) => ({
+            label: x.TENLOP.trim(),
+            value: x.MALOP.trim(),
+          }))
+        );
       }
     } catch (error) {
       toast.error(error, {
@@ -96,43 +130,11 @@ export default function Filters(props) {
   };
 
   // lấy ds môn học
-  const [dsMonHoc, setDsMonHoc] = useState();
-  const layDsMonHoc = async () => {
-    const payload = {
-      chiNhanh: currentCN.value,
-      password: dbConfig.password,
-      user: dbConfig.user,
-      pageSize: 100,
-      pageNumber: 1,
-    };
-    try {
-      const res = await adminApi.layDsMonHoc(payload);
-      if (res.data) {
-        let data = res.data?.map((x) => ({
-          label: x.TENMH,
-          value: x.MAMH,
-        }));
-        setDsMonHoc(data);
-      }
-    } catch (error) {
-      toast.error(error, {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    }
-  };
 
   useEffect(() => {
-    layDsKhoa();
-    layDsMonHoc();
+    layDsLop();
     layDsFilter();
-  }, [currentCN]);
+  }, []);
 
   return (
     <div style={{ backgroundColor: "#c2bdbd", paddingBottom: "0.2rem" }}>
@@ -154,11 +156,9 @@ export default function Filters(props) {
             </label>
             <div style={{ width: "18rem" }}>
               <Select
-                defaultValue={currentCN}
-                options={dsKhoas}
+                options={dsLop}
                 onChange={(value) => {
-                  localStorage.setItem("currentCN", JSON.stringify(value));
-                  setCurrentCN(value);
+                  setLop(value);
                 }}
               ></Select>
             </div>
@@ -216,8 +216,7 @@ export default function Filters(props) {
       <div style={{ textAlign: "center", margin: "2rem 0" }}>
         <button
           onClick={() => {
-            setFilters(filtersData);
-            console.log("filtersData", filtersData);
+            inHocPhiLop(filtersData, lop);
           }}
           className="buttonLogic"
           style={{ float: "none", marginRight: "2rem" }}

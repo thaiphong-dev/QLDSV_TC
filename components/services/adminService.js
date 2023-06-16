@@ -92,4 +92,46 @@ export const adminApi = {
         saveAs(pdfBlob, "dsSVDKLopTC.pdf");
       });
   },
+
+  async inDiemLopTC(data) {
+    return await axios
+      .post(`${baseURL}taoDiemLopTC`, data)
+      .then(() => axios.get(`${baseURL}inDiemLopTC`, { responseType: "blob" }))
+      .then((res) => {
+        const pdfBlob = new Blob([res.data], { type: "application/pdf" });
+        saveAs(pdfBlob, "DiemLopTC.pdf");
+      });
+  },
+
+  async inDiemSV(data) {
+    return await axios
+      .post(`${baseURL}taoDiemSV`, data)
+      .then(() => axios.get(`${baseURL}inDiemSV`, { responseType: "blob" }))
+      .then((res) => {
+        const pdfBlob = new Blob([res.data], { type: "application/pdf" });
+        saveAs(pdfBlob, "DiemSV.pdf");
+      });
+  },
+
+  async inHocPhiLop(data) {
+    return await axios
+      .post(`${baseURL}taoHocPhiLop`, data)
+      .then(() => axios.get(`${baseURL}inHocPhiLop`, { responseType: "blob" }))
+      .then((res) => {
+        const pdfBlob = new Blob([res.data], { type: "application/pdf" });
+        saveAs(pdfBlob, "bangHocPhiLop.pdf");
+      });
+  },
+
+  async inDiemTongKet(data) {
+    return await axios
+      .post(`${baseURL}taoDiemTongKet`, data)
+      .then(() =>
+        axios.get(`${baseURL}inDiemTongKet`, { responseType: "blob" })
+      )
+      .then((res) => {
+        const pdfBlob = new Blob([res.data], { type: "application/pdf" });
+        saveAs(pdfBlob, "bangDiemTongKet.pdf");
+      });
+  },
 };
