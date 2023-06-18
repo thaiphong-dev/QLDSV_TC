@@ -17,7 +17,9 @@ export default function ClassTCDetail(props) {
     setRefreshTable,
     taoLopTC,
   } = props;
-
+  const [currentCN, setCurrentCN] = useState(
+    JSON.parse(localStorage.getItem("currentCN"))
+  );
   const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
 
   const {
@@ -29,7 +31,9 @@ export default function ClassTCDetail(props) {
   } = useForm();
   const onSubmit = async (data) => {
     const payload = {
-      ...dbConfig,
+      user: dbConfig.user,
+      password: dbConfig.password,
+      chiNhanh: currentCN.value,
       nienKhoa: data?.nienKhoa,
       hocKy: data?.hocKy,
       nhom: data?.nhom,

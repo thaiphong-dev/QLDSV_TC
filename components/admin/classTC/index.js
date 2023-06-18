@@ -9,7 +9,7 @@ import { ToastContainer, toast } from "react-toastify";
 
 export default function ClassTC() {
   const dsKhoas = JSON.parse(localStorage.getItem("dsPhanManh")).slice(0, 2);
-
+  const userLogin = JSON.parse(localStorage.getItem("userLogin"));
   const [currentCN, setCurrentCN] = useState(
     JSON.parse(localStorage.getItem("currentCN"))
   );
@@ -233,6 +233,7 @@ export default function ClassTC() {
             <Select
               defaultValue={currentCN}
               options={dsKhoas}
+              isDisabled={userLogin.ROLENAME !== "PGV" ? true : false}
               onChange={(value) => {
                 localStorage.setItem("currentCN", JSON.stringify(value));
                 setCurrentCN(value);

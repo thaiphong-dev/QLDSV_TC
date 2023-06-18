@@ -12,6 +12,7 @@ export default function Subject() {
   const [currentCN, setCurrentCN] = useState(
     JSON.parse(localStorage.getItem("currentCN"))
   );
+  const userLogin = JSON.parse(localStorage.getItem("userLogin"));
   // login phân trang
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageSize, setCurrentPageSize] = useState(5);
@@ -114,6 +115,7 @@ export default function Subject() {
           <div style={{ width: "30%" }}>
             <Select
               defaultValue={currentCN}
+              isDisabled={userLogin.ROLENAME !== "PGV" ? true : false}
               options={dsKhoa}
               onChange={(value) => {
                 localStorage.setItem("currentCN", JSON.stringify(value));

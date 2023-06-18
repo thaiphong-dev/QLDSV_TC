@@ -11,50 +11,11 @@ export default function Filters(props) {
   );
   const dsKhoas = JSON.parse(localStorage.getItem("dsPhanManh")).slice(0, 2);
 
-  const {
-    filters,
-    setFilters,
-    filtersRef,
-    setRefresh,
-    modelChange,
-    setModelChange,
-  } = props;
+  const { filters, setFilters, filtersRef } = props;
 
   const filtersData = filters;
 
   const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
-
-  const [dsKhoa, setdsKhoa] = useState();
-  // lấy ds Khoa
-  const layDsKhoa = async () => {
-    const payload = {
-      chiNhanh: currentCN.value,
-      password: dbConfig.password,
-      user: dbConfig.user,
-    };
-    try {
-      const res = await adminApi.layDsKhoa(payload);
-      if (res.data) {
-        const dsKhoaOptions = Array.from(new Set(res.data))?.map((x) => ({
-          label: x.TENKHOA.trim(),
-          value: x.MAKHOA.trim(),
-        }));
-        setdsKhoa(dsKhoaOptions);
-      }
-    } catch (error) {
-      toast.error(error, {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    }
-  };
-
   // In danh sách lớp tín chỉ
   const inDsLopTC = async (data) => {
     const payload = {
@@ -125,39 +86,6 @@ export default function Filters(props) {
     }
   };
 
-  // lấy ds môn học
-  const [dsMonHoc, setDsMonHoc] = useState();
-  const layDsMonHoc = async () => {
-    const payload = {
-      chiNhanh: currentCN.value,
-      password: dbConfig.password,
-      user: dbConfig.user,
-      pageSize: 100,
-      pageNumber: 1,
-    };
-    try {
-      const res = await adminApi.layDsMonHoc(payload);
-      if (res.data) {
-        let data = res.data?.map((x) => ({
-          label: x.TENMH,
-          value: x.MAMH,
-        }));
-        setDsMonHoc(data);
-      }
-    } catch (error) {
-      toast.error(error, {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    }
-  };
-
   useEffect(() => {
     layDsFilter();
   }, [currentCN]);
@@ -182,6 +110,7 @@ export default function Filters(props) {
             </label>
             <div style={{ width: "18rem" }}>
               <Select
+                isDisabled={userLogin.ROLENAME !== "PGV" ? true : false}
                 defaultValue={currentCN}
                 options={dsKhoas}
                 onChange={(value) => {

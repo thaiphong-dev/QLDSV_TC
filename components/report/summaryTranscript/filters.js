@@ -100,6 +100,7 @@ export default function Filters(props) {
               <Select
                 defaultValue={currentCN}
                 options={dsKhoas}
+                isDisabled={userLogin.ROLENAME !== "PGV" ? true : false}
                 onChange={(value) => {
                   localStorage.setItem("currentCN", JSON.stringify(value));
                   setCurrentCN(value);

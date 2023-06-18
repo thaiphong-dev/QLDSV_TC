@@ -20,11 +20,11 @@ export default function Report() {
     { label: "Bảng điểm tổng kết", value: "summaryTranscript" },
   ];
 
-  const listMenuSV = [
-    { label: "Đăng kí Lớp tín chỉ", value: "registerClassTC" },
-  ];
+  const listMenuSV = [{ label: "Phiếu điểm sinh viên", value: "scoreCard" }];
 
-  const listMenuPKT = [{ label: "Học phí", value: "tuition" }];
+  const listMenuPKT = [
+    { label: "Danh sách đóng học phí của lớp", value: "listFeePayment" },
+  ];
 
   const [currentMenu, setCurrentMenu] = useState(
     isSV ? "scoreCard" : "listStudent"

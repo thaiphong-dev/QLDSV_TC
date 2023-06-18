@@ -17,7 +17,9 @@ export default function Table(props) {
     refreshChangeDetail,
   } = props;
   const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
-
+  const [currentCN, setCurrentCN] = useState(
+    JSON.parse(localStorage.getItem("currentCN"))
+  );
   const rowClass = "rowSelected";
   const [detail, setDetail] = useState([]);
   const detailRef = useRef();
@@ -25,7 +27,9 @@ export default function Table(props) {
   const layDsDiemSv = async () => {
     const dbConfig = JSON.parse(localStorage.getItem("currentDB"));
     const payload = {
-      ...dbConfig,
+      user: dbConfig.user,
+      password: dbConfig.password,
+      chiNhanh: currentCN.value,
       ...filters,
       pageSize: currentPageSize,
       pageNumber: currentPage,

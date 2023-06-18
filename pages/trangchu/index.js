@@ -22,7 +22,10 @@ export default function Main() {
     { label: "Cấu hình", value: "system" },
   ];
 
-  const listMenuSV = [{ label: "Quản Trị", value: "admin" }];
+  const listMenuSV = [
+    { label: "Quản Trị", value: "admin" },
+    { label: "Báo Cáo", value: "report" },
+  ];
 
   const listMenuPKT = [{ label: "Quản Trị", value: "admin" }];
   const isSV = JSON.parse(localStorage.getItem("isSV"));

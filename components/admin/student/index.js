@@ -10,6 +10,7 @@ import { adminApi } from "../../services/adminService";
 
 export default function Student() {
   const rowClass = "rowSelected";
+  const userLogin = JSON.parse(localStorage.getItem("userLogin"));
 
   const [currentCN, setCurrentCN] = useState(
     JSON.parse(localStorage.getItem("currentCN"))
@@ -156,6 +157,7 @@ export default function Student() {
             <Select
               defaultValue={currentCN}
               options={dsKhoa}
+              isDisabled={userLogin.ROLENAME !== "PGV" ? true : false}
               onChange={(value) => {
                 localStorage.setItem("currentCN", JSON.stringify(value));
                 setCurrentCN(value);

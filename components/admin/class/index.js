@@ -7,6 +7,8 @@ import { adminApi } from "../../services/adminService";
 import { toast } from "react-toastify";
 
 export default function Class() {
+  const userLogin = JSON.parse(localStorage.getItem("userLogin"));
+
   const [dsLop, setDsLop] = useState();
   const [currentCN, setCurrentCN] = useState(
     JSON.parse(localStorage.getItem("currentCN"))
@@ -116,6 +118,7 @@ export default function Class() {
           </label>
           <div style={{ width: "30%" }}>
             <Select
+              isDisabled={userLogin.ROLENAME !== "PGV" ? true : false}
               defaultValue={currentCN}
               options={dsKhoa}
               onChange={(value) => {

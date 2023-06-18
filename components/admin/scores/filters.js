@@ -8,7 +8,7 @@ export default function Filters(props) {
     JSON.parse(localStorage.getItem("currentCN"))
   );
   const dsKhoas = JSON.parse(localStorage.getItem("dsPhanManh")).slice(0, 2);
-
+  const userLogin = JSON.parse(localStorage.getItem("userLogin"));
   const {
     filters,
     setFilters,
@@ -151,6 +151,7 @@ export default function Filters(props) {
             <div style={{ width: "18rem" }}>
               <Select
                 defaultValue={currentCN}
+                isDisabled={userLogin.ROLENAME !== "PGV" ? true : false}
                 options={dsKhoas}
                 onChange={(value) => {
                   localStorage.setItem("currentCN", JSON.stringify(value));

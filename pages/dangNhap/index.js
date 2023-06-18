@@ -91,16 +91,21 @@ function Login() {
         router.push("/trangchu");
       }
     } catch (error) {
-      toast.error("Tài Khoản hoặc mật khẩu không đúng!", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      toast.error(
+        isSV
+          ? "Không tìm thấy mã Sinh viên!"
+          : "Tài Khoản hoặc mật khẩu không đúng!",
+        {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        }
+      );
     }
   };
 

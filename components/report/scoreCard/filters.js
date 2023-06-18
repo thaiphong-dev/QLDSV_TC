@@ -8,7 +8,8 @@ export default function Filters(props) {
   const [currentCN, setCurrentCN] = useState(
     JSON.parse(localStorage.getItem("currentCN"))
   );
-  const dsKhoas = JSON.parse(localStorage.getItem("dsPhanManh")).slice(0, 2);
+  const isSV = JSON.parse(localStorage.getItem("isSV"));
+
   const userLogin = JSON.parse(localStorage.getItem("userLogin"));
   // In phiếu điểm sinh viên
   const inDiemSV = async (data) => {
@@ -16,7 +17,7 @@ export default function Filters(props) {
       chiNhanh: currentCN.value,
       password: dbConfig.password,
       user: dbConfig.user,
-      MASV: data,
+      MASV: !isSV ? data : userLogin?.MASV,
       USER: userLogin.HOTEN,
     };
     try {
@@ -39,21 +40,13 @@ export default function Filters(props) {
 
   const {
     register,
-    handleSubmit,
+
     watch,
-    setValue,
-    control,
+
     formState: { errors },
   } = useForm();
 
-  const {
-    filters,
-    setFilters,
-    filtersRef,
-    setRefresh,
-    modelChange,
-    setModelChange,
-  } = props;
+  const { filters } = props;
 
   const filtersData = filters;
 
@@ -72,7 +65,11 @@ export default function Filters(props) {
               Mã Sinh viên
             </label>
             <div style={{ width: "18rem" }}>
-              <input {...register("MASV")}></input>
+              <input
+                disabled={isSV ? true : false}
+                {...register("MASV")}
+                defaultValue={userLogin?.MASV}
+              ></input>
             </div>
           </div>
         </div>

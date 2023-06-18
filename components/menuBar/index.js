@@ -1,23 +1,30 @@
 import React, { useEffect, useState } from "react";
 
 export default function MainMenu(props) {
-  console.log("props", props);
+  const isSV = JSON.parse(localStorage.getItem("isSV"));
+  const userLogin = JSON.parse(localStorage.getItem("userLogin"));
   const [currentMenuValue, setCurrentMenuValue] = useState(
     JSON.parse(localStorage.getItem("menu"))
   );
   const [refreshMenu, setRefreshMenu] = useState(false);
 
   const onMenuClick = (value) => {
-    console.log("vlaueee", value);
-
     let newMenuValue = currentMenuValue;
     if (props.keyMenu === "level1") {
       if (value === "admin") {
         newMenuValue.parentMenu = value;
-        newMenuValue.secondMenu = "class";
+        newMenuValue.secondMenu = isSV
+          ? "registerClassTC"
+          : userLogin.ROLENAME === "PGV"
+          ? "class"
+          : "tuition";
       } else if (value === "report") {
         newMenuValue.parentMenu = value;
-        newMenuValue.secondMenu = "listStudent";
+        newMenuValue.secondMenu = isSV
+          ? "scoreCard"
+          : userLogin.ROLENAME === "PGV"
+          ? "listStudent"
+          : "listFeePayment";
       } else {
         newMenuValue.parentMenu = value;
         newMenuValue.secondMenu = "";
